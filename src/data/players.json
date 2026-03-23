@@ -1,0 +1,452 @@
+[
+  {
+    "id": "jos-buttler",
+    "name": "Jos Buttler",
+    "country": "ENG",
+    "isOverseas": true,
+    "role": "WK",
+    "basePrice": 200,
+    "specialization": "Explosive top-order batsman-keeper"
+  },
+  {
+    "id": "kl-rahul",
+    "name": "KL Rahul",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "WK",
+    "basePrice": 200,
+    "specialization": "Top-order batsman-keeper"
+  },
+  {
+    "id": "rishabh-pant",
+    "name": "Rishabh Pant",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "WK",
+    "basePrice": 200,
+    "specialization": "Aggressive left-hand batsman-keeper"
+  },
+  {
+    "id": "shreyas-iyer",
+    "name": "Shreyas Iyer",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BAT",
+    "basePrice": 200,
+    "specialization": "Middle-order batsman"
+  },
+  {
+    "id": "devdutt-padikkal",
+    "name": "Devdutt Padikkal",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BAT",
+    "basePrice": 75,
+    "specialization": "Left-hand top-order batsman"
+  },
+  {
+    "id": "kagiso-rabada",
+    "name": "Kagiso Rabada",
+    "country": "SA",
+    "isOverseas": true,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Right-arm fast bowler"
+  },
+  {
+    "id": "mohammed-shami",
+    "name": "Mohammed Shami",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Right-arm fast bowler"
+  },
+  {
+    "id": "yuzvendra-chahal",
+    "name": "Yuzvendra Chahal",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Leg-spin bowler"
+  },
+  {
+    "id": "bhuvneshwar-kumar",
+    "name": "Bhuvneshwar Kumar",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Right-arm swing bowler"
+  },
+  {
+    "id": "mitchell-starc",
+    "name": "Mitchell Starc",
+    "country": "AUS",
+    "isOverseas": true,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Left-arm fast bowler"
+  },
+  {
+    "id": "glenn-maxwell",
+    "name": "Glenn Maxwell",
+    "country": "AUS",
+    "isOverseas": true,
+    "role": "AR",
+    "basePrice": 200,
+    "specialization": "Batting all-rounder, off-spin"
+  },
+  {
+    "id": "marcus-stoinis",
+    "name": "Marcus Stoinis",
+    "country": "AUS",
+    "isOverseas": true,
+    "role": "AR",
+    "basePrice": 200,
+    "specialization": "Batting all-rounder, medium pace"
+  },
+  {
+    "id": "washington-sundar",
+    "name": "Washington Sundar",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "AR",
+    "basePrice": 200,
+    "specialization": "Left-hand bat, off-spin"
+  },
+  {
+    "id": "david-miller",
+    "name": "David Miller",
+    "country": "SA",
+    "isOverseas": true,
+    "role": "BAT",
+    "basePrice": 200,
+    "specialization": "Left-hand middle-order finisher"
+  },
+  {
+    "id": "quinton-de-kock",
+    "name": "Quinton de Kock",
+    "country": "SA",
+    "isOverseas": true,
+    "role": "WK",
+    "basePrice": 200,
+    "specialization": "Left-hand opening batsman-keeper"
+  },
+  {
+    "id": "phil-salt",
+    "name": "Phil Salt",
+    "country": "ENG",
+    "isOverseas": true,
+    "role": "WK",
+    "basePrice": 200,
+    "specialization": "Explosive opening batsman-keeper"
+  },
+  {
+    "id": "trent-boult",
+    "name": "Trent Boult",
+    "country": "NZ",
+    "isOverseas": true,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Left-arm fast bowler"
+  },
+  {
+    "id": "lockie-ferguson",
+    "name": "Lockie Ferguson",
+    "country": "NZ",
+    "isOverseas": true,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Right-arm express pace"
+  },
+  {
+    "id": "ishan-kishan",
+    "name": "Ishan Kishan",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "WK",
+    "basePrice": 200,
+    "specialization": "Left-hand aggressive opener-keeper"
+  },
+  {
+    "id": "hardik-pandya",
+    "name": "Hardik Pandya",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "AR",
+    "basePrice": 200,
+    "specialization": "Fast-bowling all-rounder"
+  },
+  {
+    "id": "ravichandran-ashwin",
+    "name": "Ravichandran Ashwin",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Off-spin bowler"
+  },
+  {
+    "id": "jasprit-bumrah",
+    "name": "Jasprit Bumrah",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Right-arm fast bowler, yorker specialist"
+  },
+  {
+    "id": "suryakumar-yadav",
+    "name": "Suryakumar Yadav",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BAT",
+    "basePrice": 200,
+    "specialization": "360-degree middle-order batsman"
+  },
+  {
+    "id": "shubman-gill",
+    "name": "Shubman Gill",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BAT",
+    "basePrice": 200,
+    "specialization": "Top-order right-hand batsman"
+  },
+  {
+    "id": "sanju-samson",
+    "name": "Sanju Samson",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "WK",
+    "basePrice": 200,
+    "specialization": "Aggressive batsman-keeper"
+  },
+  {
+    "id": "rashid-khan",
+    "name": "Rashid Khan",
+    "country": "AFG",
+    "isOverseas": true,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Leg-spin all-rounder"
+  },
+  {
+    "id": "pat-cummins",
+    "name": "Pat Cummins",
+    "country": "AUS",
+    "isOverseas": true,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Right-arm fast bowler, lower-order bat"
+  },
+  {
+    "id": "david-warner",
+    "name": "David Warner",
+    "country": "AUS",
+    "isOverseas": true,
+    "role": "BAT",
+    "basePrice": 200,
+    "specialization": "Left-hand explosive opener"
+  },
+  {
+    "id": "faf-du-plessis",
+    "name": "Faf du Plessis",
+    "country": "SA",
+    "isOverseas": true,
+    "role": "BAT",
+    "basePrice": 200,
+    "specialization": "Top-order anchor batsman"
+  },
+  {
+    "id": "liam-livingstone",
+    "name": "Liam Livingstone",
+    "country": "ENG",
+    "isOverseas": true,
+    "role": "AR",
+    "basePrice": 200,
+    "specialization": "Power-hitting all-rounder, leg-spin"
+  },
+  {
+    "id": "devon-conway",
+    "name": "Devon Conway",
+    "country": "NZ",
+    "isOverseas": true,
+    "role": "BAT",
+    "basePrice": 200,
+    "specialization": "Left-hand top-order batsman"
+  },
+  {
+    "id": "axar-patel",
+    "name": "Axar Patel",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "AR",
+    "basePrice": 200,
+    "specialization": "Left-arm spin all-rounder"
+  },
+  {
+    "id": "shardul-thakur",
+    "name": "Shardul Thakur",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "AR",
+    "basePrice": 100,
+    "specialization": "Medium-fast bowling all-rounder"
+  },
+  {
+    "id": "deepak-chahar",
+    "name": "Deepak Chahar",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 100,
+    "specialization": "Right-arm swing bowler"
+  },
+  {
+    "id": "arshdeep-singh",
+    "name": "Arshdeep Singh",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Left-arm fast bowler, death overs"
+  },
+  {
+    "id": "kuldeep-yadav",
+    "name": "Kuldeep Yadav",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Left-arm wrist spin"
+  },
+  {
+    "id": "rahul-tripathi",
+    "name": "Rahul Tripathi",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BAT",
+    "basePrice": 75,
+    "specialization": "Middle-order right-hand batsman"
+  },
+  {
+    "id": "harry-brook",
+    "name": "Harry Brook",
+    "country": "ENG",
+    "isOverseas": true,
+    "role": "BAT",
+    "basePrice": 200,
+    "specialization": "Aggressive middle-order batsman"
+  },
+  {
+    "id": "gerald-coetzee",
+    "name": "Gerald Coetzee",
+    "country": "SA",
+    "isOverseas": true,
+    "role": "BOWL",
+    "basePrice": 100,
+    "specialization": "Right-arm express pace"
+  },
+  {
+    "id": "wanindu-hasaranga",
+    "name": "Wanindu Hasaranga",
+    "country": "SL",
+    "isOverseas": true,
+    "role": "AR",
+    "basePrice": 150,
+    "specialization": "Leg-spin bowling all-rounder"
+  },
+  {
+    "id": "rinku-singh",
+    "name": "Rinku Singh",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BAT",
+    "basePrice": 100,
+    "specialization": "Left-hand middle-order finisher"
+  },
+  {
+    "id": "yashasvi-jaiswal",
+    "name": "Yashasvi Jaiswal",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BAT",
+    "basePrice": 200,
+    "specialization": "Left-hand opening batsman"
+  },
+  {
+    "id": "tilak-varma",
+    "name": "Tilak Varma",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BAT",
+    "basePrice": 100,
+    "specialization": "Left-hand middle-order batsman"
+  },
+  {
+    "id": "mohammed-siraj",
+    "name": "Mohammed Siraj",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 200,
+    "specialization": "Right-arm fast bowler"
+  },
+  {
+    "id": "josh-hazlewood",
+    "name": "Josh Hazlewood",
+    "country": "AUS",
+    "isOverseas": true,
+    "role": "BOWL",
+    "basePrice": 150,
+    "specialization": "Right-arm fast bowler, accuracy"
+  },
+  {
+    "id": "mark-wood",
+    "name": "Mark Wood",
+    "country": "ENG",
+    "isOverseas": true,
+    "role": "BOWL",
+    "basePrice": 150,
+    "specialization": "Right-arm express pace"
+  },
+  {
+    "id": "venkatesh-iyer",
+    "name": "Venkatesh Iyer",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "AR",
+    "basePrice": 75,
+    "specialization": "Left-hand batting all-rounder"
+  },
+  {
+    "id": "rahul-chahar",
+    "name": "Rahul Chahar",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BOWL",
+    "basePrice": 75,
+    "specialization": "Leg-spin bowler"
+  },
+  {
+    "id": "prithvi-shaw",
+    "name": "Prithvi Shaw",
+    "country": "IND",
+    "isOverseas": false,
+    "role": "BAT",
+    "basePrice": 50,
+    "specialization": "Aggressive opening batsman"
+  },
+  {
+    "id": "sam-curran",
+    "name": "Sam Curran",
+    "country": "ENG",
+    "isOverseas": true,
+    "role": "AR",
+    "basePrice": 200,
+    "specialization": "Left-arm pace bowling all-rounder"
+  }
+]

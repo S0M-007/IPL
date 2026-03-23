@@ -2,185 +2,263 @@
 
 ## System Overview
 
-The IPL Auction Game is a real-time multiplayer web application built with a serverless architecture. The frontend is a Next.js app that communicates directly with Firebase Realtime Database for all real-time state synchronization.
+The IPL Auction Simulator is a web application built with Next.js that lets authenticated users participate in IPL-style player auctions across three distinct modes: Regular IPL Auction, Fantasy IPL Auction, and All-Time IPL Auction. Users sign in via Google Auth, create or join named leagues, conduct auctions with real-time bidding, and compete on a points-based leaderboard in Fantasy mode.
+
+### Tech Stack
+
+- **Framework**: Next.js (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Backend/Database**: Firebase (Firestore + Authentication)
+- **Authentication**: Google Auth (Gmail / Email-Password / Username)
+- **State Management**: React Context + custom hooks
+- **Deployment**: Vercel
+
+## Application Flow
 
 ```
-+------------------+       +------------------------+
-|   Next.js App    |       |   Firebase Realtime DB  |
-|   (Vercel)       | <---> |   (Google Cloud)        |
-|                  |       |                          |
-|  - Static pages  |       |  - Room state            |
-|  - Room UI       |       |  - Auction state         |
-|  - Auction UI    |       |  - Chat messages          |
-|  - Squad mgmt    |       |  - Presence tracking      |
-+------------------+       +------------------------+
-        ^                           ^
-        |                           |
-   Browser Client            Firebase Anonymous Auth
+Login (Google Auth: Gmail / Email-Password / Username)
+  |
+  v
+Main Page
+  |- 3 Auction Mode Buttons: Regular IPL | Fantasy IPL | All-Time IPL
+  |- Your Leagues & Leaderboard section
+  |
+  +--> [Select Mode] --> Registration/Setup
+  |                        |- Enter league name
+  |                        |- Pick team from 2x5 grid
+  |                        |- START button
+  |                        v
+  |                   Auction Screen
+  |                        |- Player details (Name, Matches, Innings, Runs, Avg, SR)
+  |                        |- Timer circle
+  |                        |- Player Set sidebar
+  |                        |- All Players list sidebar
+  |                        |- Info panel (other teams' players & budgets)
+  |                        |- BID / SKIP (with confirmation popup)
+  |                        |- Save/Resume support
+  |                        v
+  |                   [Fantasy mode only]
+  |                        |- Internal Points DB
+  |                        v
+  |                   Leaderboard (points-based team rankings)
+  |                        v
+  |                   Team Detail (player-by-player points breakdown)
+  |
+  +--> Data Entry (admin: enter player points per match)
 ```
 
-## Tech Stack
+## Authentication
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Framework | Next.js 15 (App Router) | SSR/SSG for static pages, client-side for rooms |
-| UI | React 19 + Tailwind CSS 4 | Component rendering + utility-first styling |
-| Real-time | Firebase Realtime Database | WebSocket-based state sync across all clients |
-| Auth | Firebase Anonymous Auth | Stable UIDs without user friction |
-| Icons | Lucide React | Lightweight SVG icon library |
-| Hosting | Vercel | Frontend deployment with edge network |
+### Google Auth Flow
 
-## Key Architectural Decisions
+Users authenticate through Firebase Authentication using one of three methods:
 
-### Firebase Realtime DB over Firestore
-Realtime DB has lower latency for rapid writes (bids arriving every 1-2 seconds). Firestore's 1 write/second/document limit would bottleneck the auction state node during active bidding.
+1. **Google Sign-In (Gmail)**: OAuth-based sign-in with a Google account
+2. **Email/Password**: Traditional email and password registration and login
+3. **Username/Password**: Username-based authentication mapped to an email address internally
 
-### Host-Authoritative Timer
-The room host's client is authoritative for timer expiry resolution. This avoids needing Cloud Functions for timer management. Trade-off: if the host disconnects, the auction stalls. Mitigation: auto-transfer host role to the next connected participant.
+All authenticated users receive a Firebase UID that links to their profile and league data. There is no anonymous access.
 
-### Anonymous Auth
-Even without user accounts, Firebase Anonymous Auth gives each browser session a stable UID. This enables:
-- Security rules (only you can update your own participant data)
-- Reconnection (rejoin the same slot after page refresh)
-- No user friction (no signup required)
+### Auth State Management
 
-### Prices in Lakhs as Integers
-All prices stored as integers in lakhs (e.g., 240 = 2.40 Cr). Avoids floating-point arithmetic issues. Display formatting converts: `240 -> "2.40 Cr"`, `50 -> "50 L"`.
+The `useAuth` hook manages authentication state across the application:
 
-### Denormalized `publicRooms/`
-A separate `publicRooms/` node contains only the ~7 fields needed for the room browse page. Reading `rooms/` would download all room data (auction state, chat, etc.) for every room.
+- `currentUser` -- Firebase User object
+- `userProfile` -- Application-specific profile data from the `users/` collection
+- `isAuthenticated` -- Boolean indicating login state
+- `login()` / `logout()` / `register()` -- Auth action methods
 
-## Firebase Realtime DB Schema
+Protected routes use an `AuthGuard` wrapper that redirects unauthenticated users to `/login`.
+
+## Firebase Schema
+
+### Firestore Collections
 
 ```
-root/
-  rooms/{roomCode}/
-    code: string                    # 6-char alphanumeric
-    hostId: string                  # Firebase anonymous UID
-    createdAt: number               # Server timestamp
-    status: string                  # "lobby" | "auction" | "paused" | "completed"
+users/
+  {userId}/
+    displayName: string
+    email: string
+    avatarUrl: string
+    createdAt: timestamp
+    leagues: string[]                // IDs of leagues the user belongs to
 
-    settings/
-      auctionMode: string           # "ipl2026" | "mega" | "legends"
-      timerDuration: number         # 5 | 10 | 15 | 20 | 25 (seconds)
-      visibility: string           # "public" | "private"
-      maxPlayers: number            # 2-10
-      allowMidJoin: boolean
-      allowSpectators: boolean
-
-    participants/{uid}/
-      displayName: string
-      teamId: string | null         # null = hasn't picked yet
-      isHost: boolean
-      isReady: boolean
-      joinedAt: number
-      isConnected: boolean          # Managed via onDisconnect()
-
-    spectators/{uid}/
-      displayName: string
-      joinedAt: number
-
+leagues/
+  {leagueId}/
+    name: string                     // user-entered league name
+    createdBy: string                // userId of creator
+    mode: "regular" | "fantasy" | "alltime"
+    status: "setup" | "active" | "paused" | "completed"
+    createdAt: timestamp
+    teams/
+      {teamId}/
+        name: string                 // franchise name, e.g. "RCB", "CSK"
+        ownerId: string              // userId
+        budget: number               // remaining budget
+        players: PlayerEntry[]       // players acquired in auction
+        totalPoints: number          // Fantasy mode only, summed from points DB
     auction/
-      currentSetIndex: number
-      currentPlayerIndex: number
-      currentPlayer/
-        playerId: string
-        currentBid: number          # In lakhs
-        currentBidder: string       # Team ID
-        bidCount: number
-        status: string              # "bidding" | "sold" | "unsold"
-      timer/
-        expiresAt: number           # Server timestamp
-        duration: number            # Configured seconds
-        isPaused: boolean
-      completedPlayers/{playerId}/
-        soldTo: string | null       # Team ID or null
-        soldPrice: number
-        bidCount: number
-      teams/{teamId}/
-        purseRemaining: number      # In lakhs
-        overseasCount: number
-        slotsUsed: number
-        retained/{index}: string    # Player IDs
-        bought/{index}/
-          playerId: string
-          soldPrice: number
-      totalPlayersInPool: number
-      playersAuctioned: number
+      currentPlayer: PlayerData | null
+      currentBid: number
+      currentBidder: string | null
+      timerEnd: timestamp | null
+      playerSetIndex: number         // which player set is active
+      status: "bidding" | "paused" | "sold" | "unsold" | "completed"
+      round: number
+    settings/
+      totalBudget: number
+      minBid: number
+      bidIncrement: number
+      timerDuration: number          // seconds for the timer circle
+      maxPlayersPerTeam: number
 
-    chat/{messageId}/
-      senderId: string
-      senderName: string
-      senderTeamId: string | null
-      text: string
-      type: string                  # "message" | "system"
-      timestamp: number
+players/
+  {playerId}/
+    name: string
+    role: string                     // Batsman, Bowler, All-rounder, WK
+    nationality: string
+    basePrice: number
+    matches: number
+    innings: number
+    runs: number
+    average: number
+    strikeRate: number
+    wickets: number
+    economy: number
+    catches: number
+    team: string                     // IPL franchise
+    season: string                   // for All-Time mode filtering
+    set: string                      // player set grouping (Set 1, Set 2, etc.)
 
-    activityFeed/{eventId}/
-      type: string                  # "bid" | "sold" | "unsold" | "join" | "leave"
-      data: object
-      timestamp: number
+points/
+  {seasonId}/
+    {playerId}/
+      matchPoints: number[]          // per-match points array
+      totalPoints: number            // sum of matchPoints
+      lastUpdated: timestamp
 
-  publicRooms/{roomCode}/
-    roomName: string
-    hostName: string
-    auctionMode: string
-    playerCount: number
-    maxPlayers: number
-    status: string
-    createdAt: number
+dataEntry/
+  {entryId}/
+    season: string
+    match: string
+    playerPoints: Map<playerId, number>
+    enteredBy: string                // userId of admin
+    enteredAt: timestamp
+```
 
-  presence/{uid}/
-    roomCode: string
-    lastSeen: number
+## Route Structure
+
+```
+/                                --> Redirect to /login or /main based on auth state
+/login                           --> Login page (Google / Email / Username auth)
+/register                        --> Registration page for new accounts
+/main                            --> Main page (3 auction mode buttons + leagues section)
+/league/create                   --> League setup (enter name, pick team from 2x5 grid, START)
+/league/[leagueId]               --> League lobby / resume auction
+/auction/[leagueId]              --> Auction screen (full bidding interface)
+/leaderboard/[leagueId]          --> Leaderboard (points-based team rankings)
+/leaderboard/[leagueId]/[teamId] --> Team detail (player-by-player points table)
+/data-entry                      --> Admin data entry for player points
+```
+
+## Component Architecture
+
+### Page Components
+
+```
+LoginPage
+  |- GoogleSignInButton
+  |- EmailPasswordForm
+  |- UsernamePasswordForm
+
+MainPage
+  |- AuctionModeCard (x3: Regular, Fantasy, All-Time) -- large buttons
+  |- LeaguesAndLeaderboardSection
+       |- LeagueCard (per league the user belongs to)
+       |- LeaderboardPreview
+
+LeagueSetupPage
+  |- LeagueNameInput
+  |- TeamGrid (2 rows x 5 columns of IPL team logos/names)
+  |- StartButton
+
+AuctionPage
+  |- PlayerDetailsPanel
+  |    |- PlayerName, BasePrice
+  |    |- StatsTable (Matches, Innings, Runs, Average, Strike Rate)
+  |- TimerCircle (countdown visualization)
+  |- PlayerSetSidebar (current set display)
+  |- AllPlayersList (scrollable sidebar of all players)
+  |- InfoPanel
+  |    |- OtherTeamsPlayers (what other teams have bought)
+  |    |- OtherTeamsBudgets (remaining budgets)
+  |- BidButton
+  |- SkipButton --> ConfirmationPopup ("Are you sure?")
+  |- CurrentBidDisplay
+
+LeaderboardPage
+  |- RankingsList (scrollable)
+       |- TeamRankRow (rank number, team name, total points)
+       e.g. #1 RCB 10535 pts, #2 CSK 9750 pts, ...
+
+TeamDetailPage
+  |- TeamHeader (team name, total points)
+  |- PlayerPointsTable
+       |- PlayerRow (player name, individual points breakdown)
+
+DataEntryPage
+  |- SeasonSelector
+  |- MatchSelector
+  |- PlayerPointsForm (bulk entry of points per player per match)
+```
+
+### Shared Components
+
+```
+Header / Navbar (with user avatar, logout)
+AuthGuard (route protection wrapper)
+LoadingSpinner
+ErrorBoundary
+ConfirmationModal (reusable, used by SkipButton)
+Toast / Notification
 ```
 
 ## Data Flow
 
-### Room Creation
-1. User fills form (name, team, mode, visibility)
-2. Client generates 6-char room code
-3. Firebase transaction checks code uniqueness
-4. Writes room structure to `rooms/{code}`
-5. If public, writes summary to `publicRooms/{code}`
-6. Client navigates to `/rooms/{code}`
+### Auction Flow
 
-### Bidding Flow
-1. Player clicks BID button
-2. Client validates: sufficient purse, squad not full, overseas limit OK
-3. Firebase transaction on `auction/currentPlayer`:
-   - Reads current `currentBid`
-   - Calculates next bid amount
-   - Writes new `currentBid`, `currentBidder`, increments `bidCount`
-4. Timer reset: writes new `expiresAt` = serverTimestamp + duration
-5. All clients receive update via `onValue` listener
-6. UI updates: bid amount, bidder badge, timer restart, activity feed entry
+1. User selects an auction mode (Regular, Fantasy, or All-Time) on the Main Page.
+2. User creates a league: enters a league name, picks a team from the 2x5 grid, and presses START.
+3. Auction begins: first player from Set 1 is displayed with full stats.
+4. Player details panel shows: Name, Matches, Innings, Runs, Average, Strike Rate.
+5. Timer circle counts down the bidding window.
+6. Users can press BID (increments current bid) or SKIP (triggers confirmation popup before committing).
+7. When timer expires or all participants skip: player is sold to highest bidder or goes unsold.
+8. Next player is loaded from the current set; process repeats until all sets are complete.
+9. Auction state is continuously saved to Firebase for save/resume support.
 
-### Timer Expiry
-1. Host's client detects timer reached 0 (via requestAnimationFrame loop)
-2. Host writes resolution:
-   - If `bidCount > 0`: status = "sold", updates team purse/squad
-   - If `bidCount === 0`: status = "unsold"
-3. After 3s overlay, host advances to next player
+### Fantasy Points Flow
 
-## Component Architecture
+1. An admin enters match-by-match player points via the Data Entry page.
+2. Points are stored in the `points/` collection, keyed by season and player ID.
+3. After the auction completes, each team's total points are calculated by summing owned players' points from the points database.
+4. The Leaderboard page ranks teams by total points (e.g., #1 RCB 10535 pts, #2 CSK 9750 pts).
+5. The Team Detail page shows a table with each player's individual points breakdown.
 
-```
-RoomPage
-  ├── LobbyView (status === "lobby")
-  │   ├── TeamSelector (10 IPL team slots)
-  │   ├── PlayerSlotList (connected participants)
-  │   ├── RoomSettings (host-only config)
-  │   └── LobbyChat
-  │
-  └── AuctionView (status === "auction")
-      ├── PlayerCard (current player being auctioned)
-      ├── BidPanel (bid button + current bid display)
-      ├── AuctionTimer (countdown ring)
-      ├── TeamPurseBar (all teams' budgets)
-      ├── SetProgress ("Set 2: Capped Indians - 5/40")
-      ├── SoldOverlay / UnsoldOverlay (animations)
-      ├── SquadMiniView (your current squad)
-      ├── ActivityFeed (event log)
-      └── AuctionChat
-```
+### Save/Resume Flow
+
+1. Full auction state is continuously written to `leagues/{id}/auction/` in Firestore.
+2. On disconnect or browser close, the state persists in Firestore.
+3. When the user returns, they navigate to the league from the Main Page and resume.
+4. All participants see the synced state via Firestore real-time listeners.
+
+## Key Design Decisions
+
+1. **Google Auth over Anonymous**: Persistent user profiles enable league membership, leaderboard identity, and cross-session continuity.
+2. **League-based System**: Named leagues group users for organized competition. Each league has its own auction instance and leaderboard.
+3. **Three Distinct Modes**: Regular (current season roster), Fantasy (with points database and leaderboard), and All-Time (historical players across all seasons) serve different use cases.
+4. **Internal Points Database**: A separate `points/` collection populated via the Data Entry system enables real points-based Fantasy competition independent of external APIs.
+5. **Firestore Real-time Listeners**: Keep auction state, bids, and leaderboard rankings synchronized across all connected participants.
+6. **Save/Resume**: Full auction state persisted in Firestore allows pausing and continuing auctions across sessions without data loss.
+7. **Skip with Confirmation**: A confirmation popup on the SKIP button prevents accidental skips during the auction.

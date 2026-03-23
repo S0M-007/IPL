@@ -2,290 +2,368 @@
 
 ## Firebase Database Paths
 
-All real-time state is managed through Firebase Realtime Database. There is no REST API server.
+All state is managed through Firebase Firestore. There is no REST API server. Authentication is handled by Firebase Authentication (Google Auth).
 
-### Room Paths
+### Users
 
-| Path | Type | Description |
-|------|------|-------------|
-| `rooms/{roomCode}` | Object | Full room state |
-| `rooms/{roomCode}/status` | String | `"lobby"` / `"auction"` / `"paused"` / `"completed"` |
-| `rooms/{roomCode}/hostId` | String | UID of the room creator |
-| `rooms/{roomCode}/settings` | Object | Room configuration |
-| `rooms/{roomCode}/participants/{uid}` | Object | Connected player data |
-| `rooms/{roomCode}/spectators/{uid}` | Object | Spectator data |
+```
+users/{userId}
+```
 
-### Auction Paths
+| Field | Type | Description |
+|-------|------|-------------|
+| `displayName` | string | User's display name |
+| `email` | string | User's email address |
+| `avatarUrl` | string | Profile picture URL |
+| `createdAt` | timestamp | Account creation time |
+| `leagues` | string[] | Array of league IDs the user belongs to |
 
-| Path | Type | Description |
-|------|------|-------------|
-| `rooms/{roomCode}/auction/currentPlayer` | Object | Player currently being auctioned |
-| `rooms/{roomCode}/auction/currentPlayer/currentBid` | Number | Current highest bid (in lakhs) |
-| `rooms/{roomCode}/auction/currentPlayer/currentBidder` | String | Team ID of highest bidder |
-| `rooms/{roomCode}/auction/currentPlayer/bidCount` | Number | Total bids on this player |
-| `rooms/{roomCode}/auction/currentPlayer/status` | String | `"bidding"` / `"sold"` / `"unsold"` |
-| `rooms/{roomCode}/auction/timer/expiresAt` | Number | Server timestamp when timer expires |
-| `rooms/{roomCode}/auction/timer/isPaused` | Boolean | Whether timer is paused |
-| `rooms/{roomCode}/auction/teams/{teamId}` | Object | Team's auction state (purse, squad) |
-| `rooms/{roomCode}/auction/completedPlayers/{playerId}` | Object | Resolved player (sold/unsold) |
+### Leagues
 
-### Chat Paths
+```
+leagues/{leagueId}
+```
 
-| Path | Type | Description |
-|------|------|-------------|
-| `rooms/{roomCode}/chat/{messageId}` | Object | Chat message |
-| `rooms/{roomCode}/activityFeed/{eventId}` | Object | System event (bid, sold, join, etc.) |
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | League name entered by the creator |
+| `createdBy` | string | User ID of the league creator |
+| `mode` | string | Auction mode: `"regular"`, `"fantasy"`, or `"alltime"` |
+| `status` | string | `"setup"`, `"active"`, `"paused"`, or `"completed"` |
+| `createdAt` | timestamp | League creation time |
 
-### Public Room Index
+### League Teams
 
-| Path | Type | Description |
-|------|------|-------------|
-| `publicRooms/{roomCode}` | Object | Lightweight room summary for browse page |
+```
+leagues/{leagueId}/teams/{teamId}
+```
 
-### Presence
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Franchise name (e.g., "RCB", "CSK") |
+| `ownerId` | string | User ID of the team owner |
+| `budget` | number | Remaining budget |
+| `players` | PlayerEntry[] | Array of acquired players |
+| `totalPoints` | number | Total fantasy points (Fantasy mode only) |
 
-| Path | Type | Description |
-|------|------|-------------|
-| `presence/{uid}` | Object | User's current room and last seen time |
-| `.info/connected` | Boolean | Firebase connection state |
-| `.info/serverTimeOffset` | Number | Clock skew between client and server (ms) |
+### League Auction State
 
----
+```
+leagues/{leagueId}/auction
+```
 
-## Custom Hooks
+| Field | Type | Description |
+|-------|------|-------------|
+| `currentPlayer` | PlayerData \| null | Player currently up for auction |
+| `currentBid` | number | Current highest bid amount |
+| `currentBidder` | string \| null | User ID of current highest bidder |
+| `timerEnd` | timestamp \| null | When the current timer expires |
+| `playerSetIndex` | number | Index of the active player set |
+| `status` | string | `"bidding"`, `"paused"`, `"sold"`, `"unsold"`, or `"completed"` |
+| `round` | number | Current auction round |
 
-### `useRoom(roomCode: string)`
-Subscribe to room state and manage participation.
+### League Settings
 
-**Returns:**
+```
+leagues/{leagueId}/settings
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `totalBudget` | number | Starting budget per team |
+| `minBid` | number | Minimum bid amount |
+| `bidIncrement` | number | Fixed bid increment |
+| `timerDuration` | number | Bidding timer duration in seconds |
+| `maxPlayersPerTeam` | number | Maximum squad size |
+
+### Players
+
+```
+players/{playerId}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Player's full name |
+| `role` | string | Batsman, Bowler, All-rounder, or WK |
+| `nationality` | string | Country of origin |
+| `basePrice` | number | Starting auction price |
+| `matches` | number | Total matches played |
+| `innings` | number | Total innings |
+| `runs` | number | Total runs scored |
+| `average` | number | Batting average |
+| `strikeRate` | number | Batting strike rate |
+| `wickets` | number | Total wickets taken |
+| `economy` | number | Bowling economy rate |
+| `catches` | number | Total catches |
+| `team` | string | IPL franchise name |
+| `season` | string | IPL season (for All-Time mode filtering) |
+| `set` | string | Player set grouping (Set 1, Set 2, etc.) |
+
+### Points (Fantasy Mode)
+
+```
+points/{seasonId}/{playerId}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `matchPoints` | number[] | Array of points earned per match |
+| `totalPoints` | number | Sum of all match points |
+| `lastUpdated` | timestamp | When points were last updated |
+
+### Data Entry
+
+```
+dataEntry/{entryId}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `season` | string | IPL season identifier |
+| `match` | string | Match identifier |
+| `playerPoints` | Map | Map of player IDs to points earned in the match |
+| `enteredBy` | string | User ID of the admin who entered the data |
+| `enteredAt` | timestamp | Submission timestamp |
+
+## React Hooks
+
+### useAuth
+
+Manages authentication state and actions.
+
 ```typescript
-{
-  room: Room | null;              // Full room data
-  participants: Participant[];    // Connected players
-  spectators: Spectator[];        // Spectators
-  isHost: boolean;                // Whether current user is host
-  myTeamId: string | null;        // Current user's team
-  loading: boolean;
-  error: string | null;
-  // Mutations
-  joinRoom: (displayName: string) => Promise<void>;
-  leaveRoom: () => Promise<void>;
-  selectTeam: (teamId: string) => Promise<void>;
-  toggleReady: () => Promise<void>;
-  kickParticipant: (uid: string) => Promise<void>;
-  updateSettings: (settings: Partial<RoomSettings>) => Promise<void>;
+const {
+  currentUser,      // Firebase User object or null
+  userProfile,      // UserProfile from users/ collection or null
+  isAuthenticated,  // boolean
+  isLoading,        // boolean, true while auth state resolving
+  login,            // (method: 'google' | 'email' | 'username', credentials?) => Promise<void>
+  logout,           // () => Promise<void>
+  register,         // (email: string, password: string, displayName: string) => Promise<void>
+} = useAuth();
+```
+
+### useLeague
+
+Manages league state including creation, joining, and real-time sync.
+
+```typescript
+const {
+  league,           // League object or null
+  teams,            // TeamData[] for all teams in the league
+  isLoading,        // boolean
+  createLeague,     // (name: string, mode: AuctionMode, teamId: string) => Promise<string>
+  joinLeague,       // (leagueId: string, teamId: string) => Promise<void>
+} = useLeague(leagueId?: string);
+```
+
+### useAuction
+
+Manages auction state with real-time Firestore listeners.
+
+```typescript
+const {
+  auctionState,     // AuctionState object (currentPlayer, currentBid, status, etc.)
+  isLoading,        // boolean
+  placeBid,         // () => Promise<void> -- places a bid at currentBid + increment
+  skipPlayer,       // () => Promise<void> -- confirms and skips current player
+  pauseAuction,     // () => Promise<void>
+  resumeAuction,    // () => Promise<void>
+  nextPlayer,       // () => Promise<void> -- advances to next player in set
+} = useAuction(leagueId: string);
+```
+
+### usePlayerDatabase
+
+Fetches and filters the player database.
+
+```typescript
+const {
+  players,          // PlayerData[] -- all players (or filtered by mode)
+  playerSets,       // Map<string, PlayerData[]> -- players grouped by set
+  isLoading,        // boolean
+  getPlayersBySet,  // (setName: string) => PlayerData[]
+  getPlayerById,    // (playerId: string) => PlayerData | null
+} = usePlayerDatabase(mode: AuctionMode);
+```
+
+### useLeaderboard
+
+Fetches leaderboard data for a league (Fantasy mode).
+
+```typescript
+const {
+  rankings,         // TeamRanking[] -- sorted by totalPoints descending
+  isLoading,        // boolean
+  refreshRankings,  // () => Promise<void>
+} = useLeaderboard(leagueId: string);
+```
+
+**TeamRanking type:**
+
+```typescript
+interface TeamRanking {
+  rank: number;          // 1-based rank
+  teamId: string;
+  teamName: string;      // e.g., "RCB"
+  totalPoints: number;   // e.g., 10535
+  ownerId: string;
 }
 ```
 
-### `useAuction(roomCode: string)`
-Subscribe to auction state.
+### useTeamDetail
 
-**Returns:**
+Fetches a team's player-by-player points breakdown.
+
 ```typescript
-{
-  auctionState: AuctionState | null;
-  currentPlayer: Player | null;       // Full player data (joined with static data)
-  teams: Record<string, TeamAuctionState>;
-  timerRemaining: number;             // Seconds remaining
-  timerPercentage: number;            // 0-100 for progress bar
-  isTimerWarning: boolean;            // True when < 3s
-  playersAuctioned: number;
-  totalPlayers: number;
-  currentSetName: string;
-  // Host-only mutations
-  startAuction: () => Promise<void>;
-  pauseAuction: () => Promise<void>;
-  resumeAuction: () => Promise<void>;
-  skipPlayer: () => Promise<void>;
-  endAuction: () => Promise<void>;
-  nextPlayer: () => Promise<void>;
+const {
+  team,             // TeamData object
+  playerPoints,     // PlayerPointsEntry[] -- each player's points breakdown
+  totalPoints,      // number
+  isLoading,        // boolean
+} = useTeamDetail(leagueId: string, teamId: string);
+```
+
+**PlayerPointsEntry type:**
+
+```typescript
+interface PlayerPointsEntry {
+  playerId: string;
+  playerName: string;
+  matchPoints: number[];   // per-match points
+  totalPoints: number;
 }
 ```
 
-### `useBidding(roomCode: string)`
-Handle bid submission with validation.
+### useTimer
 
-**Returns:**
+Manages the countdown timer circle for the auction.
+
 ```typescript
-{
-  placeBid: () => Promise<void>;      // Submit a bid
-  canBid: boolean;                     // Whether current user can bid
-  bidReason: string | null;            // Why bidding is disabled
-  nextBidAmount: number;               // What the next bid would be (in lakhs)
-  myPurse: number;                     // Current user's remaining purse
-}
+const {
+  timeRemaining,    // number -- seconds left
+  isRunning,        // boolean
+  progress,         // number -- 0 to 1, for the circular timer display
+  startTimer,       // (durationSeconds: number) => void
+  resetTimer,       // () => void
+} = useTimer();
 ```
 
-### `useTimer(expiresAt: number, duration: number, isPaused: boolean)`
-Client-side countdown synchronized with server time.
+### useDataEntry
 
-**Returns:**
+Manages admin data entry for player points.
+
 ```typescript
-{
-  secondsRemaining: number;           // Countdown value
-  percentage: number;                  // 0-100 for visual display
-  isWarning: boolean;                  // True when < 3s
-  isExpired: boolean;                  // True when timer hit 0
-}
+const {
+  submitPoints,     // (season: string, match: string, playerPoints: Map<string, number>) => Promise<void>
+  isSubmitting,     // boolean
+} = useDataEntry();
 ```
 
-### `useChat(roomCode: string)`
-Real-time chat messaging.
+## TypeScript Types
 
-**Returns:**
+### AuctionMode
+
 ```typescript
-{
-  messages: ChatMessage[];             // Last 100 messages
-  sendMessage: (text: string) => Promise<void>;
-  sendGif: (gifUrl: string) => Promise<void>;
-}
+type AuctionMode = "regular" | "fantasy" | "alltime";
 ```
 
-### `useSquad(roomCode: string, teamId: string)`
-Derived squad state with constraint checks.
+### AuctionStatus
 
-**Returns:**
 ```typescript
-{
-  retained: Player[];                  // Retained players with full data
-  bought: (Player & { soldPrice: number })[];  // Bought players
-  totalPlayers: number;
-  overseasCount: number;
-  slotsRemaining: number;
-  purseRemaining: number;
-  purseSpent: number;
-  isSquadFull: boolean;                // >= 25 players
-  isOverseasFull: boolean;             // >= 8 overseas
-  canBuyMore: boolean;                 // Has budget + slots
-}
+type AuctionStatus = "bidding" | "paused" | "sold" | "unsold" | "completed";
 ```
 
-### `useSound()`
-Sound effect management.
+### LeagueStatus
 
-**Returns:**
 ```typescript
-{
-  playBid: () => void;
-  playSold: () => void;
-  playUnsold: () => void;
-  playWarning: () => void;
-  isMuted: boolean;
-  toggleMute: () => void;
-}
+type LeagueStatus = "setup" | "active" | "paused" | "completed";
 ```
 
-### `useRoomPresence(roomCode: string)`
-Online/offline tracking.
-
-**Returns:**
-```typescript
-{
-  isConnected: boolean;                // Current connection state
-  onlineCount: number;                 // Number of connected users
-}
-```
-
----
-
-## Engine Functions
-
-### `bid-calculator.ts`
+### PlayerData
 
 ```typescript
-// Get the next bid amount based on current bid
-getNextBidAmount(currentBid: number): number
-
-// Check if a team can place a bid
-canTeamBid(team: TeamAuctionState, bidAmount: number, player: Player): {
-  allowed: boolean;
-  reason?: string;
-}
-```
-
-### `auction-engine.ts`
-
-```typescript
-// Initialize auction state for a room
-initializeAuction(roomCode: string, auctionMode: string): Promise<void>
-
-// Present the next player from the current set
-presentNextPlayer(roomCode: string): Promise<void>
-
-// Process a bid from a team
-processBid(roomCode: string, teamId: string): Promise<void>
-
-// Resolve the current player (sold or unsold)
-resolveCurrentPlayer(roomCode: string): Promise<void>
-```
-
-### `squad-validator.ts`
-
-```typescript
-// Validate squad constraints after a hypothetical purchase
-validateSquad(team: TeamAuctionState, player: Player): {
-  valid: boolean;
-  violations: string[];
-}
-```
-
-### `set-manager.ts`
-
-```typescript
-// Get the ordered list of players for a given auction mode
-getAuctionOrder(mode: string): string[]  // Array of player IDs
-
-// Get current set info
-getCurrentSet(setIndex: number, mode: string): {
+interface PlayerData {
+  id: string;
   name: string;
-  playerIds: string[];
-  totalPlayers: number;
+  role: string;
+  nationality: string;
+  basePrice: number;
+  matches: number;
+  innings: number;
+  runs: number;
+  average: number;
+  strikeRate: number;
+  wickets: number;
+  economy: number;
+  catches: number;
+  team: string;
+  season: string;
+  set: string;
 }
+```
 
-// Advance to next player/set
-getNextPlayerIndex(currentSetIndex: number, currentPlayerIndex: number, mode: string): {
-  setIndex: number;
-  playerIndex: number;
-  isComplete: boolean;  // True if all sets exhausted
+### PlayerEntry
+
+```typescript
+interface PlayerEntry {
+  playerId: string;
+  playerName: string;
+  soldPrice: number;
+  role: string;
 }
 ```
 
-### `timer-manager.ts`
+### UserProfile
 
 ```typescript
-// Calculate new expiry timestamp
-getNewExpiry(duration: number): number  // Returns server-adjusted timestamp
-
-// Get remaining seconds from expiry
-getSecondsRemaining(expiresAt: number, serverOffset: number): number
+interface UserProfile {
+  userId: string;
+  displayName: string;
+  email: string;
+  avatarUrl: string;
+  createdAt: Timestamp;
+  leagues: string[];
+}
 ```
 
----
+### League
 
-## Utility Functions
-
-### `room-code.ts`
 ```typescript
-generateRoomCode(): string  // Returns 6-char alphanumeric code (excludes I, O, 0, 1)
+interface League {
+  id: string;
+  name: string;
+  createdBy: string;
+  mode: AuctionMode;
+  status: LeagueStatus;
+  createdAt: Timestamp;
+}
 ```
 
-### `price-formatter.ts`
+### TeamData
+
 ```typescript
-formatPrice(lakhs: number): string       // 240 -> "2.40 Cr", 50 -> "50 L"
-formatPriceFull(lakhs: number): string   // 240 -> "2 Crore 40 Lakhs"
+interface TeamData {
+  id: string;
+  name: string;
+  ownerId: string;
+  budget: number;
+  players: PlayerEntry[];
+  totalPoints: number;
+}
 ```
 
-### `constants.ts`
-```typescript
-BID_INCREMENT_TIERS: { maxBid: number; increment: number }[]
-TIMER_OPTIONS: number[]              // [5, 10, 15, 20, 25]
-MAX_SQUAD_SIZE: number               // 25
-MIN_SQUAD_SIZE: number               // 18
-MAX_OVERSEAS: number                  // 8
-DEFAULT_PURSE: number                 // 12500 (125 Cr in lakhs)
-```
+### AuctionState
 
-### `team-colors.ts`
 ```typescript
-TEAM_COLORS: Record<string, { primary: string; secondary: string; gradient: string }>
+interface AuctionState {
+  currentPlayer: PlayerData | null;
+  currentBid: number;
+  currentBidder: string | null;
+  timerEnd: Timestamp | null;
+  playerSetIndex: number;
+  status: AuctionStatus;
+  round: number;
+}
 ```

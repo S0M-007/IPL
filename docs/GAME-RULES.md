@@ -2,134 +2,151 @@
 
 ## Overview
 
-The IPL Auction Game simulates the Indian Premier League player auction. Players create or join a room, each picking an IPL franchise, then take turns bidding on cricket players within budget and squad constraints.
+The IPL Auction Simulator lets authenticated users create named leagues and conduct IPL-style player auctions. There are three auction modes: Regular IPL Auction, Fantasy IPL Auction, and All-Time IPL Auction. In Fantasy mode, teams earn points from an internal points database and compete on a leaderboard.
 
-## Room Setup
+## Authentication
 
-### Creating a Room
-1. Enter your display name (max 20 characters)
-2. Choose your IPL franchise (10 teams available)
-3. Select an auction mode
-4. Set room visibility (Public or Private)
-5. Share the 6-character room code with friends
+- Users must sign in before accessing any part of the application.
+- Supported sign-in methods: Google (Gmail), Email/Password, or Username/Password.
+- No anonymous or guest access is available.
+- Each user has a persistent profile linked to their Firebase UID.
 
-### Auction Modes
+## Auction Modes
 
-| Mode | Players | Purse | Retentions | Description |
-|------|---------|-------|------------|-------------|
-| IPL 2026 Mock | 350 | Variable per team | Yes, real IPL 2026 | Simulates the real IPL 2026 mini auction with actual retained squads |
-| Mega Auction | 230+ | Flat 120 Cr all teams | No | Clean slate mega auction, all players available |
-| Legends | 100 | 120 Cr | No | Top 100 IPL legends (batters + bowlers, 2008-2025) |
+### Regular IPL Auction
 
-### Room Settings (Host Only)
-- **Bid Timer**: 5s / 10s / 15s / 20s / 25s (default: 10s)
-- **Visibility**: Public (browseable) or Private (invite-only)
-- **Max Players**: 2-10 (default: 10)
+- Uses the current IPL season's player roster.
+- Standard auction rules apply (bidding, budget, squad limits).
+- No points system or leaderboard.
+- Results are saved and can be resumed.
 
-## Auction Mechanics
+### Fantasy IPL Auction
+
+- Uses the current IPL season's player roster.
+- Standard auction rules apply during the bidding phase.
+- After the auction, each team earns points based on their players' real match performances.
+- Points are sourced from an internal points database (populated via the Data Entry system).
+- Teams are ranked on a leaderboard by total points.
+- The leaderboard and team detail views are available after the auction completes.
+
+### All-Time IPL Auction
+
+- Uses a combined roster of players from all IPL seasons.
+- Standard auction rules apply (bidding, budget, squad limits).
+- No points system or leaderboard.
+- Results are saved and can be resumed.
+
+## League Setup
+
+1. User selects an auction mode from the Main Page.
+2. User enters a league name.
+3. User picks a team from a 2x5 grid of IPL franchises (10 teams displayed).
+4. User presses the START button to create the league and begin the auction.
+5. Each league has a unique ID and tracks all teams, auction state, and results.
+
+## Auction Rules
+
+### Player Sets
+
+- Players are divided into numbered sets (Set 1, Set 2, etc.).
+- The auction proceeds set by set. All players in a set are presented before moving to the next.
+- The current set is displayed in a sidebar on the auction screen.
 
 ### Player Presentation
-Players are presented in organized **sets** (groupings by role and tier):
 
-**IPL 2026 Mode Sets:**
-1. Marquee (top-tier, base >= 2 Cr)
-2. Capped Indians (base 1-2 Cr)
-3. Capped Overseas (base 1-2 Cr)
-4. Uncapped Indians (base 30-75 L)
-5. All-Rounders
-6. Wicket-Keepers
-7. Fast Bowlers
-8. Spinners
-9. Remaining players
-10. Accelerated Round (unsold players get a second chance at reduced base price)
+When a player comes up for auction, the following details are displayed:
 
-### Bidding Process
-1. A player card is presented showing: name, role, country, base price
-2. The countdown timer starts (configured duration)
-3. Any team can click **BID** to place a bid at the next increment
-4. Each bid **resets the timer** to the configured duration
-5. When the timer expires:
-   - If at least 1 bid was placed: **SOLD** to the highest bidder
-   - If no bids were placed: **UNSOLD** (skipped)
+- **Name**
+- **Matches** played
+- **Innings**
+- **Runs** scored
+- **Average** (batting average)
+- **Strike Rate** (SR)
+- **Base Price**
 
-### Bid Increments
+Additional stats (wickets, economy, catches) may be shown depending on the player's role.
 
-Bids increase by a fixed amount based on the current price tier:
+### Bidding
 
-| Current Bid | Increment | Example |
-|------------|-----------|---------|
-| Below 1 Cr (< 100 L) | +5 L | 30L -> 35L -> 40L |
-| 1 Cr to 5 Cr (100-500 L) | +20 L | 1.00 Cr -> 1.20 Cr -> 1.40 Cr |
-| Above 5 Cr (> 500 L) | +25 L | 5.00 Cr -> 5.25 Cr -> 5.50 Cr |
+- Each player has a base price. Bidding starts at the base price.
+- Bids increment by a fixed amount (configured in league settings).
+- A timer circle counts down the bidding window. The timer resets with each new bid.
+- Any participant can press the **BID** button to place a bid (must have sufficient budget).
+- The current highest bid and bidder are displayed to all participants.
 
-### Bid Restrictions
-You **cannot** place a bid if:
-- You are the current highest bidder (can't bid against yourself)
-- Your remaining purse is insufficient (must reserve 20L per empty slot to reach 18 minimum)
-- Your squad is full (25 players max)
-- The player is overseas and you've reached the 8 overseas player limit
+### Skip Button
 
-## Squad Constraints
+- Any participant can press the **SKIP** button to pass on the current player.
+- Pressing SKIP triggers a **confirmation popup** ("Are you sure you want to skip?").
+- The user must confirm the skip before it takes effect.
+- If all participants skip (or the timer expires with no bids), the player goes unsold.
 
-### Squad Size
-| Constraint | Limit |
-|-----------|-------|
-| Minimum squad size | 18 players |
-| Maximum squad size | 25 players |
-| Maximum overseas players | 8 |
+### Selling a Player
 
-### Player Roles
-Players are categorized into 4 roles:
-- **BAT** - Batsman
-- **BOWL** - Bowler
-- **AR** - All-Rounder
-- **WK** - Wicket-Keeper
+- When the timer expires and there is at least one bid, the player is sold to the highest bidder.
+- The sold price is deducted from the winning team's budget.
+- The player is added to the winning team's roster.
 
-### Retained Players (IPL 2026 Mode)
-Each team starts with their real IPL 2026 retained squad. These players:
-- Are pre-assigned to the team
-- Have their retention price deducted from the starting purse
-- Count toward squad size and overseas limits
-- Cannot be traded or released during the auction
+### Unsold Players
 
-### Budget (Purse)
-- **IPL 2026 Mode**: Starting purse = 125 Cr minus total retention spend (varies per team)
-- **Mega Auction Mode**: Flat 120 Cr for all teams
-- **Legends Mode**: Flat 120 Cr for all teams
+- If no bids are placed before the timer expires (or all participants skip), the player goes unsold.
+- Unsold players may be revisited in a later round depending on league settings.
 
-The purse decreases with each successful bid. Teams must manage their budget to fill all required squad positions.
+### Budget Constraints
 
-### Purse Reserve Rule
-When bidding, the system reserves enough budget to fill remaining empty slots at minimum price (20L each). This ensures teams can always reach the minimum squad size of 18.
+- Each team starts with a fixed budget (configured in league settings).
+- A bid can only be placed if the team has enough remaining budget to cover it while still being able to fill mandatory squad positions at minimum prices.
+- Remaining budgets for all teams are visible in the Info Panel on the auction screen.
 
-**Example**: If you have 10 empty slots remaining, 200L (2 Cr) is reserved. Your effective bidding budget = purse remaining - reserve amount.
+### Squad Constraints
 
-## Host Controls
+- Each team has a maximum number of players (configured in league settings).
+- Additional constraints (e.g., minimum overseas players, role requirements) may apply depending on the mode.
 
-During the auction, the host can:
-- **Pause/Resume**: Temporarily halt the auction
-- **Skip Player**: Mark current player as unsold and move to next
-- **End Auction**: End the auction early (all remaining players go unsold)
-- **Kick Player**: Remove a participant from the room
+## Fantasy Points System
 
-## Spectator Mode
-- Anyone can join a room as a spectator
-- Spectators can watch the auction and use chat
-- Spectators cannot bid or pick teams
-- The host can kick spectators
+### Points Database
 
-## Price Display Format
-- Amounts under 1 Cr are shown in Lakhs: "50 L", "75 L"
-- Amounts 1 Cr and above are shown in Crores: "1.00 Cr", "2.40 Cr", "14.25 Cr"
-- 1 Crore = 100 Lakhs
+- An internal points database stores per-match points for each player.
+- Points are entered by an admin via the Data Entry page.
+- Each entry records: season, match, and a mapping of player IDs to points earned.
 
-## End of Auction
-The auction ends when:
-- All players in the pool have been auctioned (sold or unsold)
-- The host manually ends the auction
+### Points Calculation
 
-After the auction, a summary screen shows:
-- Final squad for each team
-- Total spend per team
-- Most expensive player
-- Best value picks
+- After the auction, each team's total points are the sum of all owned players' total points from the database.
+- Points accumulate across all matches in the season.
+
+### Leaderboard
+
+- The leaderboard ranks all teams in the league by total points in descending order.
+- Display format: rank, team name, total points (e.g., #1 RCB 10535 pts, #2 CSK 9750 pts).
+- The leaderboard is scrollable and updates as new match points are entered.
+
+### Team Detail View
+
+- Clicking a team on the leaderboard opens the Team Detail page.
+- This page shows a table with each player's name and their individual points breakdown.
+- The team's total points are displayed at the top.
+
+## Save and Resume
+
+- The full auction state (current player, bids, sold players, budgets, round number) is continuously saved to Firebase.
+- If a user disconnects or closes the browser, the auction state persists.
+- Users can return to the Main Page, find their league under "Your Leagues," and resume the auction from where it left off.
+- All participants see the same synced state via real-time listeners.
+
+## Data Entry
+
+- Accessible to admin users from the `/data-entry` route.
+- Admins select a season and match, then enter points for each player.
+- Submitted points are stored in the `points/` collection and immediately reflected in leaderboard calculations.
+- Data entry supports bulk input for efficiency.
+
+## Info Panel
+
+During the auction, participants can view:
+
+- **Other Teams' Players**: Which players each competing team has acquired so far.
+- **Other Teams' Budgets**: How much budget each competing team has remaining.
+
+This information helps participants make informed bidding decisions.

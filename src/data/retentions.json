@@ -1,0 +1,110 @@
+{
+  "mi": {
+    "purseUsed": 7500,
+    "purseRemaining": 4500,
+    "retained": [
+      { "playerId": "jasprit-bumrah", "price": 1800, "slot": 1 },
+      { "playerId": "suryakumar-yadav", "price": 1650, "slot": 2 },
+      { "playerId": "hardik-pandya", "price": 1650, "slot": 3 },
+      { "playerId": "tilak-varma", "price": 1200, "slot": 4 },
+      { "playerId": "rohit-sharma", "price": 1200, "slot": 5 }
+    ]
+  },
+  "csk": {
+    "purseUsed": 6900,
+    "purseRemaining": 5100,
+    "retained": [
+      { "playerId": "ruturaj-gaikwad", "price": 1800, "slot": 1 },
+      { "playerId": "ravindra-jadeja", "price": 1800, "slot": 2 },
+      { "playerId": "matheesha-pathirana", "price": 1300, "slot": 3 },
+      { "playerId": "shivam-dube", "price": 1200, "slot": 4 },
+      { "playerId": "devon-conway", "price": 800, "slot": 5 }
+    ]
+  },
+  "rcb": {
+    "purseUsed": 6800,
+    "purseRemaining": 5200,
+    "retained": [
+      { "playerId": "virat-kohli", "price": 2100, "slot": 1 },
+      { "playerId": "rajat-patidar", "price": 1100, "slot": 2 },
+      { "playerId": "yash-dayal", "price": 500, "slot": 3 },
+      { "playerId": "phil-salt", "price": 1100, "slot": 4 },
+      { "playerId": "liam-livingstone", "price": 2000, "slot": 5 }
+    ]
+  },
+  "kkr": {
+    "purseUsed": 5700,
+    "purseRemaining": 6300,
+    "retained": [
+      { "playerId": "rinku-singh", "price": 1300, "slot": 1 },
+      { "playerId": "andre-russell", "price": 1200, "slot": 2 },
+      { "playerId": "sunil-narine", "price": 1200, "slot": 3 },
+      { "playerId": "varun-chakaravarthy", "price": 1200, "slot": 4 },
+      { "playerId": "harshit-rana", "price": 800, "slot": 5 }
+    ]
+  },
+  "dc": {
+    "purseUsed": 6200,
+    "purseRemaining": 5800,
+    "retained": [
+      { "playerId": "axar-patel", "price": 1675, "slot": 1 },
+      { "playerId": "kuldeep-yadav", "price": 1325, "slot": 2 },
+      { "playerId": "tristan-stubbs", "price": 1000, "slot": 3 },
+      { "playerId": "abhishek-porel", "price": 1200, "slot": 4 },
+      { "playerId": "abishek-sharma", "price": 1000, "slot": 5 }
+    ]
+  },
+  "pbks": {
+    "purseUsed": 4500,
+    "purseRemaining": 7500,
+    "retained": [
+      { "playerId": "shashank-singh", "price": 1100, "slot": 1 },
+      { "playerId": "prabhsimran-singh", "price": 400, "slot": 2 },
+      { "playerId": "arshdeep-singh", "price": 1800, "slot": 3 },
+      { "playerId": "kagiso-rabada", "price": 1200, "slot": 4 }
+    ]
+  },
+  "rr": {
+    "purseUsed": 7500,
+    "purseRemaining": 4500,
+    "retained": [
+      { "playerId": "sanju-samson", "price": 1800, "slot": 1 },
+      { "playerId": "yashasvi-jaiswal", "price": 1800, "slot": 2 },
+      { "playerId": "riyan-parag", "price": 1400, "slot": 3 },
+      { "playerId": "dhruv-jurel", "price": 1400, "slot": 4 },
+      { "playerId": "sandeep-sharma", "price": 1100, "slot": 5 }
+    ]
+  },
+  "srh": {
+    "purseUsed": 7500,
+    "purseRemaining": 4500,
+    "retained": [
+      { "playerId": "pat-cummins", "price": 1800, "slot": 1 },
+      { "playerId": "abhishek-sharma-srh", "price": 1400, "slot": 2 },
+      { "playerId": "travis-head", "price": 1400, "slot": 3 },
+      { "playerId": "heinrich-klaasen", "price": 2300, "slot": 4 },
+      { "playerId": "nitish-reddy", "price": 600, "slot": 5 }
+    ]
+  },
+  "gt": {
+    "purseUsed": 6900,
+    "purseRemaining": 5100,
+    "retained": [
+      { "playerId": "rashid-khan", "price": 1800, "slot": 1 },
+      { "playerId": "shubman-gill", "price": 1650, "slot": 2 },
+      { "playerId": "sai-sudharsan", "price": 850, "slot": 3 },
+      { "playerId": "rahul-tewatia", "price": 1000, "slot": 4 },
+      { "playerId": "shahrukh-khan", "price": 1600, "slot": 5 }
+    ]
+  },
+  "lsg": {
+    "purseUsed": 5100,
+    "purseRemaining": 6900,
+    "retained": [
+      { "playerId": "nicholas-pooran", "price": 2100, "slot": 1 },
+      { "playerId": "ravi-bishnoi", "price": 1100, "slot": 2 },
+      { "playerId": "mayank-yadav", "price": 1100, "slot": 3 },
+      { "playerId": "mohsin-khan", "price": 800, "slot": 4 }
+    ]
+  }
+}
