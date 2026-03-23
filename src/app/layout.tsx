@@ -1,21 +1,28 @@
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import { Navbar } from '@/components/shared/Navbar';
 import { Footer } from '@/components/shared/Footer';
 import './globals.css';
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'IPL Auction Game',
-  description: 'Play IPL Cricket Auctions with friends online. Create rooms, pick teams, bid on real players in real-time.',
+  description:
+    'Build your dream XI. Play IPL cricket auctions with friends — bid on real players in real-time.',
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0a0e1a',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark`}>
-      <body className="min-h-screen flex flex-col bg-gray-950 text-white antialiased">
+    <html lang="en" className={`${inter.variable} dark`}>
+      <body className="min-h-screen flex flex-col antialiased font-sans">
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
