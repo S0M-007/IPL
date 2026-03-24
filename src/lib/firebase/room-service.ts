@@ -135,6 +135,7 @@ export async function startAuction(roomCode: string): Promise<RoomServiceResult>
       teams: {},
       totalPlayersInPool: 0,
       playersAuctioned: 0,
+      playerOrder: [],
     };
 
     await update(roomRef(roomCode), {

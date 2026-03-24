@@ -203,6 +203,11 @@ body {
   100% { background-position: 200% 0; }
 }
 
+@keyframes confetti-fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
 /* Animation utility classes */
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;

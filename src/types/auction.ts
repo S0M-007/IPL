@@ -9,6 +9,7 @@ export interface AuctionState {
   teams: Record<string, TeamAuctionState>;
   totalPlayersInPool: number;
   playersAuctioned: number;
+  playerOrder: string[][];
 }
 
 export interface CurrentPlayerState {
