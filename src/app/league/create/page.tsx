@@ -1,10 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { TeamLogo } from '@/components/shared/TeamLogo';
 import teamsData from '@/data/teams.json';
 import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { createRoom } from '@/lib/firebase/room-service';
+import type { AuctionMode } from '@/types/room';
+
+const MODE_MAP: Record<string, AuctionMode> = {
+  regular: 'ipl2026',
+  fantasy: 'mega',
+  alltime: 'legends',
+};
 
 const MODE_LABELS: Record<string, string> = {
   regular: 'Regular Auction',
@@ -21,16 +31,58 @@ const MODE_COLORS: Record<string, string> = {
 function CreateLeagueForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const mode = searchParams.get('mode') || 'regular';
 
   const [leagueName, setLeagueName] = useState('');
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const canStart = leagueName.trim().length > 0 && selectedTeam !== null;
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/');
+    }
+  }, [user, authLoading, router]);
 
-  function handleStart() {
-    console.log('Creating league:', { leagueName, selectedTeam, mode });
-    router.push('/rooms/DEMO');
+  const canStart = leagueName.trim().length > 0 && selectedTeam !== null && !creating;
+
+  async function handleStart() {
+    if (!user || !selectedTeam) return;
+
+    setError(null);
+    setCreating(true);
+
+    try {
+      const result = await createRoom(
+        user.uid,
+        user.displayName || 'Host',
+        MODE_MAP[mode] || 'ipl2026',
+        leagueName.trim(),
+        selectedTeam,
+        'public',
+        10,
+      );
+      if (!result.success) throw new Error(result.error);
+      router.push(`/rooms/${result.data}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create room. Please try again.';
+      setError(message);
+      setCreating(false);
+    }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-12 flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin" style={{ color: 'var(--accent-orange)' }} />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -98,13 +150,27 @@ function CreateLeagueForm() {
         </div>
       </div>
 
+      {/* Error message */}
+      {error && (
+        <p className="text-sm text-red-400 text-center mb-4 px-2">
+          {error}
+        </p>
+      )}
+
       {/* Start Button */}
       <button
         onClick={handleStart}
         disabled={!canStart}
         className="w-full rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 py-4 text-lg font-bold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-orange-500/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
       >
-        START
+        {creating ? (
+          <span className="flex items-center justify-center gap-2">
+            <Loader2 size={20} className="animate-spin" />
+            Creating...
+          </span>
+        ) : (
+          'START'
+        )}
       </button>
     </div>
   );

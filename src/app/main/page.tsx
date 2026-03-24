@@ -1,8 +1,11 @@
 'use client';
 
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Gavel, Sparkles, Crown, Trophy, ChevronRight } from 'lucide-react';
+import { Gavel, Sparkles, Crown, Trophy, ChevronRight, LogOut, Loader2 } from 'lucide-react';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const MODES = [
   {
@@ -51,10 +54,103 @@ const accentStyles = {
 
 export default function MainMenuPage() {
   const router = useRouter();
-  const userName = 'Player'; // placeholder
+  const { user, loading, signOut } = useAuth();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center py-20">
+        <Loader2 size={32} className="animate-spin" style={{ color: 'var(--accent-orange)' }} />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  const userName = user.displayName || 'Player';
+
+  async function handleSignOut() {
+    try {
+      await signOut();
+      router.push('/');
+    } catch {
+      // Silently handle sign-out errors
+    }
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
+      {/* User avatar with dropdown - top right */}
+      <div className="flex justify-end mb-4 relative" ref={dropdownRef}>
+        <button
+          onClick={() => setShowDropdown(!showDropdown)}
+          className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center transition-all hover:scale-105"
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid var(--glass-border)',
+          }}
+        >
+          {user.photoURL ? (
+            <Image
+              src={user.photoURL}
+              alt={userName}
+              width={40}
+              height={40}
+              className="w-full h-full object-cover rounded-full"
+            />
+          ) : (
+            <span className="text-sm font-bold" style={{ color: 'var(--accent-orange)' }}>
+              {userName.charAt(0).toUpperCase()}
+            </span>
+          )}
+        </button>
+
+        {showDropdown && (
+          <div
+            className="absolute right-0 top-12 w-48 rounded-xl p-2 shadow-xl z-50"
+            style={{
+              background: 'rgba(20, 24, 40, 0.95)',
+              border: '1px solid var(--glass-border)',
+              backdropFilter: 'blur(16px)',
+            }}
+          >
+            <p className="px-3 py-2 text-sm truncate" style={{ color: 'var(--text-secondary)' }}>
+              {user.email}
+            </p>
+            <hr style={{ borderColor: 'var(--glass-border)' }} />
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors hover:bg-white/5 mt-1"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              <LogOut size={14} />
+              Sign Out
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Welcome */}
       <div className="mb-10 animate-fade-in">
         <p className="text-sm uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>

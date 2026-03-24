@@ -1,13 +1,70 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Mail, Lock, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Mail, Lock, User, Loader2 } from 'lucide-react';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { user, loading, signInWithGoogle, signInWithEmail, createAccount } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [isCreateMode, setIsCreateMode] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Redirect to /main if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/main');
+    }
+  }, [user, loading, router]);
+
+  // Show loading spinner during initial auth check
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin" style={{ color: 'var(--accent-orange)' }} />
+      </div>
+    );
+  }
+
+  // Don't render the form if user is already logged in (redirect is in progress)
+  if (user) {
+    return null;
+  }
+
+  async function handleGoogleSignIn() {
+    setError(null);
+    try {
+      await signInWithGoogle();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Google sign-in failed. Please try again.';
+      setError(message);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      if (isCreateMode) {
+        await createAccount(email, password, username);
+      } else {
+        await signInWithEmail(email, password);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Authentication failed. Please try again.';
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
@@ -40,6 +97,7 @@ export default function LoginPage() {
             {/* Google Sign-In */}
             <button
               type="button"
+              onClick={handleGoogleSignIn}
               className="w-full flex items-center justify-center gap-3 rounded-xl py-3 px-4 font-semibold text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 background: 'rgba(255,255,255,0.05)',
@@ -56,7 +114,7 @@ export default function LoginPage() {
 
             {/* Email / Password / Username Form */}
             <form
-              onSubmit={(e) => e.preventDefault()}
+              onSubmit={handleSubmit}
               className="flex flex-col gap-4"
             >
               <div className="relative">
@@ -71,6 +129,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="input-dark pl-10"
+                  required
                 />
               </div>
 
@@ -86,46 +145,69 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="input-dark pl-10"
+                  required
                 />
               </div>
 
-              <div className="relative">
-                <User
-                  size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: 'var(--text-muted)' }}
-                />
-                <input
-                  type="text"
-                  placeholder="Username (display name)"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  maxLength={20}
-                  className="input-dark pl-10"
-                />
-              </div>
+              {isCreateMode && (
+                <div className="relative">
+                  <User
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2"
+                    style={{ color: 'var(--text-muted)' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Username (display name)"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    maxLength={20}
+                    className="input-dark pl-10"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Error message */}
+              {error && (
+                <p className="text-sm text-red-400 text-center px-2">
+                  {error}
+                </p>
+              )}
 
               <button
                 type="submit"
-                className="btn-pill gradient-orange text-white text-sm animate-pulse-glow mt-2"
+                disabled={submitting}
+                className="btn-pill gradient-orange text-white text-sm animate-pulse-glow mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign In
+                {submitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 size={16} className="animate-spin" />
+                    {isCreateMode ? 'Creating Account...' : 'Signing In...'}
+                  </span>
+                ) : (
+                  isCreateMode ? 'Create Account' : 'Sign In'
+                )}
               </button>
             </form>
 
-            {/* Create Account Link */}
+            {/* Toggle between Sign In and Create Account */}
             <p
               className="text-center text-sm mt-6"
               style={{ color: 'var(--text-muted)' }}
             >
-              Don&apos;t have an account?{' '}
-              <Link
-                href="#"
-                className="font-medium hover:underline"
+              {isCreateMode ? 'Already have an account? ' : "Don't have an account? "}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCreateMode(!isCreateMode);
+                  setError(null);
+                }}
+                className="font-medium hover:underline bg-transparent border-none cursor-pointer"
                 style={{ color: 'var(--accent-cyan)' }}
               >
-                Create Account
-              </Link>
+                {isCreateMode ? 'Sign In' : 'Create Account'}
+              </button>
             </p>
           </div>
         </div>
