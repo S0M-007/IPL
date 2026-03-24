@@ -4,7 +4,9 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Gavel, Sparkles, Crown, Trophy, ChevronRight, LogOut, Loader2 } from 'lucide-react';
+import { Gavel, Sparkles, Crown, Trophy, ChevronRight, LogOut, Loader2, Radio } from 'lucide-react';
+import { onValue } from 'firebase/database';
+import { publicRoomsRef } from '@/lib/firebase/db';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 const MODES = [
@@ -56,6 +58,7 @@ export default function MainMenuPage() {
   const router = useRouter();
   const { user, loading, signOut } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [liveRoomCount, setLiveRoomCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Redirect to login if not authenticated
@@ -74,6 +77,15 @@ export default function MainMenuPage() {
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Subscribe to live public rooms count
+  useEffect(() => {
+    const unsubscribe = onValue(publicRoomsRef(), (snapshot) => {
+      const data = snapshot.val();
+      setLiveRoomCount(data ? Object.keys(data).length : 0);
+    });
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
@@ -204,14 +216,32 @@ export default function MainMenuPage() {
       <section className="animate-fade-in" style={{ animationDelay: '300ms' }}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Your Leagues</h2>
-          <Link
-            href="/leaderboard"
-            className="text-sm font-medium flex items-center gap-1 transition-colors"
-            style={{ color: 'var(--accent-cyan)' }}
-          >
-            <Trophy size={14} />
-            Leaderboard
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/rooms"
+              className="text-sm font-medium flex items-center gap-1.5 transition-colors"
+              style={{ color: 'var(--accent-orange)' }}
+            >
+              <Radio size={14} />
+              Browse Rooms
+              {liveRoomCount > 0 && (
+                <span
+                  className="ml-1 text-xs font-bold px-1.5 py-0.5 rounded-full"
+                  style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80' }}
+                >
+                  {liveRoomCount} live
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/leaderboard"
+              className="text-sm font-medium flex items-center gap-1 transition-colors"
+              style={{ color: 'var(--accent-cyan)' }}
+            >
+              <Trophy size={14} />
+              Leaderboard
+            </Link>
+          </div>
         </div>
 
         {/* Empty state */}
