@@ -47,7 +47,7 @@ export function AuctionTimer({ expiresAt, totalDuration }: AuctionTimerProps) {
               isUrgent ? 'animate-countdown-urgent' : 'text-white'
             )}
           >
-            {expiresAt ? seconds : '--'}
+            {expiresAt ? Math.max(0, seconds) : '--'}
           </span>
         </div>
       </div>

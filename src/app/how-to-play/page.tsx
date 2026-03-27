@@ -37,7 +37,7 @@ export default function HowToPlayPage() {
 
         <Card variant="elevated" className="p-6 mb-8">
           <h2 className="text-lg font-semibold text-white mb-4">Squad Constraints</h2>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <p className="text-xs text-gray-500 uppercase">Max Squad</p>
               <p className="text-xl font-bold text-white">{MAX_SQUAD_SIZE}</p>

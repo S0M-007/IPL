@@ -18,6 +18,7 @@ export function ChatPanel({ roomCode }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,15 +45,22 @@ export function ChatPanel({ roomCode }: ChatPanelProps) {
 
     try {
       setSending(true);
+      setSendError(false);
       const token = await getIdToken();
       if (!token) return;
 
-      await fetch(`/api/rooms/${roomCode}/chat`, {
+      const res = await fetch(`/api/rooms/${roomCode}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ text: trimmed }),
       });
-      setText('');
+      if (res.ok) {
+        setText('');
+      } else {
+        setSendError(true);
+      }
+    } catch {
+      setSendError(true);
     } finally {
       setSending(false);
     }
@@ -77,22 +85,27 @@ export function ChatPanel({ roomCode }: ChatPanelProps) {
         ))}
       </div>
 
-      <form onSubmit={handleSend} className="flex gap-2 p-3 border-t border-gray-800">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type a message..."
-          maxLength={500}
-          className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
-        <button
-          type="submit"
-          disabled={!text.trim() || sending}
-          className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg disabled:opacity-50 transition-colors"
-        >
-          <Send className="w-4 h-4" />
-        </button>
+      <form onSubmit={handleSend} className="p-3 border-t border-gray-800">
+        {sendError && (
+          <p className="text-red-400 text-xs mb-1">Failed to send. Try again.</p>
+        )}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => { setText(e.target.value); setSendError(false); }}
+            placeholder="Type a message..."
+            maxLength={500}
+            className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+          <button
+            type="submit"
+            disabled={!text.trim() || sending}
+            className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg disabled:opacity-50 transition-colors"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
       </form>
     </div>
   );

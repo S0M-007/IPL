@@ -19,7 +19,7 @@ if (!getApps().length) {
   try {
     initializeApp({
       credential: cert({ projectId, clientEmail, privateKey }),
-      databaseURL: `https://${projectId}-default-rtdb.firebaseio.com`,
+      databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || `https://${projectId}-default-rtdb.firebaseio.com`,
     });
     console.log('[Firebase Admin] Initialized successfully');
   } catch (err) {

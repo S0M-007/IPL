@@ -17,6 +17,7 @@ export function TeamSelector({ roomCode, participants, currentTeamId }: TeamSele
   const teams = getTeams();
   const retentions = getRetentions();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const takenTeams = new Set(
     participants.filter((p) => p.teamId).map((p) => p.teamId!)
@@ -25,20 +26,29 @@ export function TeamSelector({ roomCode, participants, currentTeamId }: TeamSele
   async function selectTeam(teamId: string) {
     try {
       setLoading(true);
+      setError('');
       const token = await getIdToken();
       if (!token) return;
 
-      await fetch(`/api/rooms/${roomCode}/join`, {
+      const res = await fetch(`/api/rooms/${roomCode}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ teamId }),
       });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to select team');
+      }
+    } catch {
+      setError('Network error. Try again.');
     } finally {
       setLoading(false);
     }
   }
 
   return (
+    <div>
+      {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
       {teams.map((team) => {
         const isTaken = takenTeams.has(team.id) && currentTeamId !== team.id;
@@ -82,6 +92,7 @@ export function TeamSelector({ roomCode, participants, currentTeamId }: TeamSele
           </button>
         );
       })}
+    </div>
     </div>
   );
 }

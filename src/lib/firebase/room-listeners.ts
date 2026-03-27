@@ -7,31 +7,52 @@ export function subscribeToRoom(
   roomCode: string,
   callback: (room: Room | null) => void
 ): Unsubscribe {
-  return onValue(ref(db, roomPath(roomCode)), (snap) => {
-    callback(snap.exists() ? (snap.val() as Room) : null);
-  });
+  return onValue(
+    ref(db, roomPath(roomCode)),
+    (snap) => {
+      callback(snap.exists() ? (snap.val() as Room) : null);
+    },
+    (error) => {
+      console.error('[subscribeToRoom] Error:', error.message);
+      callback(null);
+    }
+  );
 }
 
 export function subscribeToParticipants(
   roomCode: string,
   callback: (participants: Record<string, Participant>) => void
 ): Unsubscribe {
-  return onValue(ref(db, roomParticipantsPath(roomCode)), (snap) => {
-    callback(snap.exists() ? (snap.val() as Record<string, Participant>) : {});
-  });
+  return onValue(
+    ref(db, roomParticipantsPath(roomCode)),
+    (snap) => {
+      callback(snap.exists() ? (snap.val() as Record<string, Participant>) : {});
+    },
+    (error) => {
+      console.error('[subscribeToParticipants] Error:', error.message);
+      callback({});
+    }
+  );
 }
 
 export function subscribeToPublicRooms(
   callback: (rooms: PublicRoom[]) => void
 ): Unsubscribe {
-  return onValue(ref(db, publicRoomsPath()), (snap) => {
-    if (!snap.exists()) {
+  return onValue(
+    ref(db, publicRoomsPath()),
+    (snap) => {
+      if (!snap.exists()) {
+        callback([]);
+        return;
+      }
+      const data = snap.val() as Record<string, PublicRoom>;
+      const rooms = Object.values(data).filter((r) => r.status === 'lobby');
+      rooms.sort((a, b) => b.createdAt - a.createdAt);
+      callback(rooms);
+    },
+    (error) => {
+      console.error('[subscribeToPublicRooms] Permission denied or error:', error.message);
       callback([]);
-      return;
     }
-    const data = snap.val() as Record<string, PublicRoom>;
-    const rooms = Object.values(data).filter((r) => r.status === 'lobby');
-    rooms.sort((a, b) => b.createdAt - a.createdAt);
-    callback(rooms);
-  });
+  );
 }

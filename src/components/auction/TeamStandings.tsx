@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/Card';
 import { TeamLogo } from '@/components/shared/TeamLogo';
 import { PriceDisplay } from '@/components/shared/PriceDisplay';
+import { TOTAL_PURSE } from '@/lib/constants';
 import type { TeamPurse } from '@/lib/types';
 
 interface TeamStandingsProps {
@@ -26,7 +27,7 @@ export function TeamStandings({ purses }: TeamStandingsProps) {
               <div className="w-full bg-gray-800 rounded-full h-1">
                 <div
                   className="h-1 rounded-full bg-emerald-500 transition-all"
-                  style={{ width: `${(purse.remaining / 12000) * 100}%` }}
+                  style={{ width: `${(purse.remaining / TOTAL_PURSE) * 100}%` }}
                 />
               </div>
               {purse.overseasCount > 0 && (

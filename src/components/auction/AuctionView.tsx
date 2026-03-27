@@ -135,7 +135,7 @@ export function AuctionView({ roomCode, participants, isHost, timerDuration }: A
 
       {/* Right: Chat */}
       <div className="lg:col-span-3">
-        <Card variant="elevated" className="h-[calc(100vh-8rem)] flex flex-col">
+        <Card variant="elevated" className="h-80 lg:h-[calc(100vh-8rem)] flex flex-col">
           <h3 className="text-xs text-gray-500 uppercase tracking-wider p-4 pb-0">Chat</h3>
           <ChatPanel roomCode={roomCode} />
         </Card>

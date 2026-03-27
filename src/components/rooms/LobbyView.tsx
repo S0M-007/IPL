@@ -24,6 +24,8 @@ export function LobbyView({ room, participants, isHost }: LobbyViewProps) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const [error, setError] = useState('');
 
   const myParticipant = participants.find((p) => p.userId === user?.uid);
   const allHaveTeams = participants.length >= 2 && participants.every((p) => p.teamId);
@@ -35,24 +37,44 @@ export function LobbyView({ room, participants, isHost }: LobbyViewProps) {
   }
 
   async function leaveRoom() {
-    const token = await getIdToken();
-    if (!token) return;
-    await fetch(`/api/rooms/${room.code}/leave`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    router.push('/rooms');
+    try {
+      setLeaving(true);
+      setError('');
+      const token = await getIdToken();
+      if (!token) return;
+      const res = await fetch(`/api/rooms/${room.code}/leave`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        router.push('/rooms');
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to leave room');
+      }
+    } catch {
+      setError('Network error. Try again.');
+    } finally {
+      setLeaving(false);
+    }
   }
 
   async function startAuction() {
     try {
       setStarting(true);
+      setError('');
       const token = await getIdToken();
       if (!token) return;
-      await fetch(`/api/rooms/${room.code}/auction/start`, {
+      const res = await fetch(`/api/rooms/${room.code}/auction/start`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to start auction');
+      }
+    } catch {
+      setError('Network error. Try again.');
     } finally {
       setStarting(false);
     }
@@ -86,7 +108,7 @@ export function LobbyView({ room, participants, isHost }: LobbyViewProps) {
               <Play className="w-4 h-4" /> Start Auction
             </Button>
           )}
-          <Button onClick={leaveRoom} variant="ghost" size="sm">
+          <Button onClick={leaveRoom} variant="ghost" size="sm" loading={leaving}>
             <LogOut className="w-4 h-4" /> Leave
           </Button>
         </div>
@@ -118,6 +140,10 @@ export function LobbyView({ room, participants, isHost }: LobbyViewProps) {
           <ChatPanel roomCode={room.code} />
         </Card>
       </div>
+
+      {error && (
+        <p className="text-center text-sm text-red-400 mt-4">{error}</p>
+      )}
 
       {isHost && !allHaveTeams && (
         <p className="text-center text-sm text-gray-500 mt-4">
