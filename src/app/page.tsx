@@ -1,241 +1,69 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Mail, Lock, User, Loader2 } from 'lucide-react';
-import { useAuth } from '@/lib/hooks/useAuth';
+import Link from 'next/link';
+import { useAuth } from '@/components/providers/AuthProvider';
+import { Navbar } from '@/components/shared/Navbar';
+import { Footer } from '@/components/shared/Footer';
+import { Card } from '@/components/ui';
+import { Trophy, Zap, Settings, Users } from 'lucide-react';
+import { MODE_CONFIG } from '@/lib/constants';
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { user, loading, signInWithGoogle, signInWithEmail, createAccount } = useAuth();
+const modeIcons = { classic: Trophy, speed: Zap, custom: Settings };
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
-  const [isCreateMode, setIsCreateMode] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  // Redirect to /main if already logged in
-  useEffect(() => {
-    if (!loading && user) {
-      router.push('/main');
-    }
-  }, [user, loading, router]);
-
-  // Show loading spinner during initial auth check
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin" style={{ color: 'var(--accent-orange)' }} />
-      </div>
-    );
-  }
-
-  // Don't render the form if user is already logged in (redirect is in progress)
-  if (user) {
-    return null;
-  }
-
-  async function handleGoogleSignIn() {
-    setError(null);
-    try {
-      await signInWithGoogle();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Google sign-in failed. Please try again.';
-      setError(message);
-    }
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-
-    try {
-      if (isCreateMode) {
-        await createAccount(email, password, username);
-      } else {
-        await signInWithEmail(email, password);
-      }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Authentication failed. Please try again.';
-      setError(message);
-    } finally {
-      setSubmitting(false);
-    }
-  }
+export default function HomePage() {
+  const { user } = useAuth();
 
   return (
-    <div className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">
-      {/* Background decorative glow */}
-      <div
-        className="pointer-events-none absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full"
-        style={{
-          background:
-            'radial-gradient(circle, rgba(255,107,0,0.1) 0%, transparent 70%)',
-        }}
-      />
-
-      <div className="w-full max-w-md animate-slide-up">
-        {/* Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight gradient-text leading-tight">
-            IPL Auction
-            <br />
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1">
+        <section className="py-20 px-4 text-center">
+          <h1 className="text-5xl sm:text-6xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              IPL Auction
+            </span>{' '}
             Game
           </h1>
-          <p className="mt-3 text-lg" style={{ color: 'var(--text-secondary)' }}>
-            Build your dream XI
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-12">
+            Experience the thrill of the IPL mega auction. Build your dream squad in real-time
+            multiplayer with friends.
           </p>
-        </div>
 
-        {/* Login Card */}
-        <div className="glass-card p-8 gradient-border">
-          {/* Inner content sits above the gradient-border pseudo-element */}
-          <div className="relative z-10">
-            {/* Google Sign-In */}
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 rounded-xl py-3 px-4 font-semibold text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid var(--glass-border)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              <GoogleIcon />
-              Sign in with Google
-            </button>
-
-            {/* OR Divider */}
-            <div className="divider-or my-6">or</div>
-
-            {/* Email / Password / Username Form */}
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col gap-4"
-            >
-              <div className="relative">
-                <Mail
-                  size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: 'var(--text-muted)' }}
-                />
-                <input
-                  type="email"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-dark pl-10"
-                  required
-                />
-              </div>
-
-              <div className="relative">
-                <Lock
-                  size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: 'var(--text-muted)' }}
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-dark pl-10"
-                  required
-                />
-              </div>
-
-              {isCreateMode && (
-                <div className="relative">
-                  <User
-                    size={18}
-                    className="absolute left-3 top-1/2 -translate-y-1/2"
-                    style={{ color: 'var(--text-muted)' }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Username (display name)"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    maxLength={20}
-                    className="input-dark pl-10"
-                    required
-                  />
-                </div>
-              )}
-
-              {/* Error message */}
-              {error && (
-                <p className="text-sm text-red-400 text-center px-2">
-                  {error}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="btn-pill gradient-orange text-white text-sm animate-pulse-glow mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 size={16} className="animate-spin" />
-                    {isCreateMode ? 'Creating Account...' : 'Signing In...'}
-                  </span>
-                ) : (
-                  isCreateMode ? 'Create Account' : 'Sign In'
-                )}
-              </button>
-            </form>
-
-            {/* Toggle between Sign In and Create Account */}
-            <p
-              className="text-center text-sm mt-6"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              {isCreateMode ? 'Already have an account? ' : "Don't have an account? "}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCreateMode(!isCreateMode);
-                  setError(null);
-                }}
-                className="font-medium hover:underline bg-transparent border-none cursor-pointer"
-                style={{ color: 'var(--accent-cyan)' }}
-              >
-                {isCreateMode ? 'Sign In' : 'Create Account'}
-              </button>
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+            {Object.entries(MODE_CONFIG).map(([key, mode]) => {
+              const Icon = modeIcons[key as keyof typeof modeIcons];
+              return (
+                <Card key={key} variant="elevated" className="p-6 text-left hover:border-gray-700 transition-colors">
+                  <Icon className="w-8 h-8 text-indigo-400 mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2">{mode.label}</h3>
+                  <p className="text-sm text-gray-400 mb-3">{mode.description}</p>
+                  <p className="text-xs text-gray-500">Timer: {mode.timer}s per bid</p>
+                </Card>
+              );
+            })}
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-/* Inline Google "G" icon so we don't need an external asset */
-function GoogleIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 48 48">
-      <path
-        fill="#FFC107"
-        d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
-      />
-      <path
-        fill="#FF3D00"
-        d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
-      />
-      <path
-        fill="#4CAF50"
-        d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
-      />
-      <path
-        fill="#1976D2"
-        d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
-      />
-    </svg>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {user ? (
+              <Link
+                href="/rooms"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium px-8 py-3 rounded-lg text-lg transition-all"
+              >
+                <Users className="w-5 h-5" />
+                Browse Rooms
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium px-8 py-3 rounded-lg text-lg transition-all"
+              >
+                Sign In to Play
+              </Link>
+            )}
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
   );
 }

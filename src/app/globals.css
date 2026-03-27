@@ -1,294 +1,78 @@
 @import "tailwindcss";
 
-/* ===== IPL Auction Game — Design System ===== */
-
 :root {
-  /* Core palette */
-  --bg-primary: #0a0e1a;
-  --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.6);
-
-  /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-
-  /* Accent — electric orange-amber */
-  --accent-orange: #ff6b00;
-  --accent-amber: #ff9500;
-
-  /* Secondary — cyan / teal */
-  --accent-cyan: #00d4ff;
-  --accent-teal: #06b6d4;
-
-  /* Misc */
-  --success: #10b981;
-  --purple: #a855f7;
-  --danger: #ef4444;
-
-  /* Glass */
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-hover: rgba(255, 255, 255, 0.15);
-  --glass-bg: rgba(15, 23, 42, 0.65);
-  --glass-blur: 16px;
-
-  /* Shadows */
-  --glow-orange: 0 0 30px rgba(255, 107, 0, 0.15);
-  --glow-cyan: 0 0 30px rgba(0, 212, 255, 0.15);
-  --glow-purple: 0 0 30px rgba(168, 85, 247, 0.15);
+  --color-primary: #1a1a2e;
+  --color-secondary: #16213e;
+  --color-accent: #e94560;
+  --color-gold: #f4c430;
+  --color-surface: #0f0f23;
+  --color-surface-light: #1a1a3e;
+  --color-border: #2a2a4a;
+  --color-text: #e0e0e0;
+  --color-text-muted: #8888aa;
 }
 
-/* ===== Tailwind v4 theme tokens ===== */
-@theme inline {
-  --color-background: var(--bg-primary);
-  --color-foreground: var(--text-primary);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-}
+.team-mi { --team-color: #004BA0; }
+.team-csk { --team-color: #FFFF00; }
+.team-rcb { --team-color: #EC1C24; }
+.team-kkr { --team-color: #3A225D; }
+.team-dc { --team-color: #004C93; }
+.team-pbks { --team-color: #ED1B24; }
+.team-rr { --team-color: #EA1A85; }
+.team-srh { --team-color: #FF822A; }
+.team-gt { --team-color: #1C1C1C; }
+.team-lsg { --team-color: #A72056; }
 
-/* ===== Body ===== */
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  /* Stadium-lighting radial gradient */
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 107, 0, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0, 212, 255, 0.05) 0%, transparent 50%);
-  background-attachment: fixed;
-  min-height: 100vh;
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
-/* ===== Custom Scrollbar ===== */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #0f172a;
-}
-::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px currentColor; }
+  50% { box-shadow: 0 0 20px currentColor, 0 0 40px currentColor; }
 }
 
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #334155 #0f172a;
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== Utility: Gradient Text ===== */
-.gradient-text {
-  background: linear-gradient(135deg, var(--accent-orange), var(--accent-amber));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-.gradient-text-cyan {
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-teal));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-purple {
-  background: linear-gradient(135deg, var(--purple), #c084fc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ===== Utility: Gradient Backgrounds ===== */
-.gradient-orange {
-  background: linear-gradient(135deg, var(--accent-orange), var(--accent-amber));
-}
-
-.gradient-cyan {
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-teal));
-}
-
-.gradient-purple {
-  background: linear-gradient(135deg, var(--purple), #c084fc);
-}
-
-/* ===== Glassmorphism Card ===== */
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.glass-card:hover {
-  border-color: var(--glass-border-hover);
-}
-
-/* ===== Animated Gradient Border ===== */
-.gradient-border {
-  position: relative;
-  border-radius: 1rem;
-  overflow: hidden;
-}
-
-.gradient-border::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    var(--accent-orange),
-    var(--accent-cyan),
-    var(--purple),
-    var(--accent-amber)
-  );
-  background-size: 300% 300%;
-  animation: gradient-rotate 4s ease infinite;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: xor;
-  pointer-events: none;
-}
-
-@keyframes gradient-rotate {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-/* ===== Glow Effects ===== */
-.glow-orange {
-  box-shadow: var(--glow-orange);
-}
-.glow-cyan {
-  box-shadow: var(--glow-cyan);
-}
-.glow-purple {
-  box-shadow: var(--glow-purple);
-}
-
-/* ===== Keyframe Animations ===== */
-@keyframes fadeIn {
+@keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes bid-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(255, 107, 0, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(255, 107, 0, 0.4);
-  }
+@keyframes countdown-urgent {
+  0%, 100% { color: #ef4444; }
+  50% { color: #fbbf24; }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
+.animate-slide-in { animation: slide-in 0.3s ease-out; }
+.animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-bid-pulse { animation: bid-pulse 0.3s ease-in-out; }
+.animate-countdown-urgent { animation: countdown-urgent 1s ease-in-out infinite; }
 
-@keyframes confetti-fall {
-  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
-/* Animation utility classes */
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-
-.animate-slide-up {
-  animation: slideUp 0.5s ease-out forwards;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-/* ===== Pill Button ===== */
-.btn-pill {
-  border-radius: 9999px;
-  padding: 0.625rem 1.5rem;
-  font-weight: 600;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.btn-pill:hover {
-  transform: scale(1.03);
-}
-
-.btn-pill:active {
-  transform: scale(0.98);
-}
-
-/* ===== Input Styling ===== */
-.input-dark {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid var(--glass-border);
-  border-radius: 0.75rem;
-  padding: 0.75rem 1rem;
-  color: var(--text-primary);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  width: 100%;
-  outline: none;
-}
-
-.input-dark::placeholder {
-  color: var(--text-muted);
-}
-
-.input-dark:focus {
-  border-color: var(--accent-orange);
-  box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.15);
-}
-
-/* ===== Divider ===== */
-.divider-or {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.divider-or::before,
-.divider-or::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--glass-border);
-}
-
-/* ===== Mode Card Accent Bars ===== */
-.mode-card-orange { border-left: 3px solid var(--accent-orange); }
-.mode-card-cyan { border-left: 3px solid var(--accent-cyan); }
-.mode-card-purple { border-left: 3px solid var(--purple); }

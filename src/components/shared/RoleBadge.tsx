@@ -1,20 +1,30 @@
-import { ROLE_LABELS } from '@/lib/utils/constants';
-
-const ROLE_COLORS: Record<string, string> = {
-  BAT: 'bg-blue-600',
-  BOWL: 'bg-green-600',
-  AR: 'bg-purple-600',
-  WK: 'bg-amber-600',
-};
+import { cn } from '@/lib/utils';
+import { ROLE_COLORS, ROLE_LABELS } from '@/lib/constants';
+import type { PlayerRole } from '@/lib/types';
 
 interface RoleBadgeProps {
-  role: string;
+  role: PlayerRole;
+  size?: 'sm' | 'md';
   className?: string;
 }
 
-export function RoleBadge({ role, className = '' }: RoleBadgeProps) {
+const sizeClasses = {
+  sm: 'px-2 py-0.5 text-xs',
+  md: 'px-2.5 py-1 text-sm',
+};
+
+export function RoleBadge({ role, size = 'sm', className }: RoleBadgeProps) {
+  const colors = ROLE_COLORS[role];
   return (
-    <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium text-white ${ROLE_COLORS[role] || 'bg-gray-600'} ${className}`}>
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full font-medium',
+        colors?.bg,
+        colors?.text,
+        sizeClasses[size],
+        className
+      )}
+    >
       {ROLE_LABELS[role] || role}
     </span>
   );

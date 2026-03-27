@@ -1,13 +1,27 @@
-import { clsx } from 'clsx';
+import { cn } from '@/lib/utils';
+import type { ReactNode } from 'react';
+
+type CardVariant = 'default' | 'elevated' | 'glass';
 
 interface CardProps {
-  children: React.ReactNode;
+  teamColor?: string;
+  variant?: CardVariant;
   className?: string;
+  children: ReactNode;
 }
 
-export function Card({ children, className }: CardProps) {
+const variantClasses: Record<CardVariant, string> = {
+  default: 'bg-gray-900 border border-gray-800 rounded-xl',
+  elevated: 'bg-gray-900 border border-gray-800 rounded-xl shadow-lg shadow-black/20',
+  glass: 'glass rounded-xl',
+};
+
+export function Card({ teamColor, variant = 'default', className, children }: CardProps) {
   return (
-    <div className={clsx('rounded-xl border border-gray-800 bg-gray-900 p-4', className)}>
+    <div
+      className={cn(variantClasses[variant], teamColor && 'border-l-4', className)}
+      style={teamColor ? { borderLeftColor: teamColor } : undefined}
+    >
       {children}
     </div>
   );

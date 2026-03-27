@@ -1,16 +1,24 @@
-import { formatPrice } from '@/lib/utils/price-formatter';
+import { cn } from '@/lib/utils';
+import { formatPrice, formatPriceFull } from '@/lib/utils';
 
 interface PriceDisplayProps {
-  lakhs: number;
+  amount: number;
+  size?: 'sm' | 'md' | 'lg';
+  showFull?: boolean;
   className?: string;
-  label?: string;
 }
 
-export function PriceDisplay({ lakhs, className = '', label }: PriceDisplayProps) {
+const sizeClasses = {
+  sm: 'text-sm',
+  md: 'text-base',
+  lg: 'text-2xl font-bold',
+};
+
+export function PriceDisplay({ amount, size = 'md', showFull = false, className }: PriceDisplayProps) {
+  const formatted = showFull ? formatPriceFull(amount) : formatPrice(amount);
   return (
-    <span className={className}>
-      {label && <span className="text-gray-400 mr-1">{label}</span>}
-      <span className="text-orange-400 font-semibold">{formatPrice(lakhs)}</span>
+    <span className={cn('text-emerald-400', sizeClasses[size], className)}>
+      ₹{formatted}
     </span>
   );
 }

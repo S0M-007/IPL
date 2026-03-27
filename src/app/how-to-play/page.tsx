@@ -1,155 +1,83 @@
-import { LogIn, Gamepad2, Users, Gavel, Trophy, Crown } from 'lucide-react';
-
-const steps = [
-  {
-    icon: LogIn,
-    number: 1,
-    title: 'Sign In',
-    desc: 'Create an account or sign in with Google to get started. Your progress and leagues are saved automatically.',
-  },
-  {
-    icon: Gamepad2,
-    number: 2,
-    title: 'Choose Mode',
-    desc: 'Pick from Regular (IPL 2026 rules), Fantasy (build your dream XI), or All-Time Legends mode for classic matchups.',
-  },
-  {
-    icon: Users,
-    number: 3,
-    title: 'Create League',
-    desc: 'Name your league, invite friends with a share code, and pick an IPL franchise to represent.',
-  },
-  {
-    icon: Gavel,
-    number: 4,
-    title: 'Start Auction',
-    desc: 'Players appear one at a time. Place bids before the countdown expires. The highest bidder wins the player.',
-  },
-  {
-    icon: Trophy,
-    number: 5,
-    title: 'Build Squad',
-    desc: 'Stay within your budget, manage overseas player slots, and build a balanced team of 18-25 players.',
-  },
-  {
-    icon: Crown,
-    number: 6,
-    title: 'Win!',
-    desc: 'In Fantasy mode, compete against friends on the leaderboard. Best squad composition wins bragging rights!',
-  },
-];
-
-const bidIncrements = [
-  { range: 'Under ₹1 Cr', increment: '₹5 Lakhs' },
-  { range: '₹1 Cr — ₹5 Cr', increment: '₹20 Lakhs' },
-  { range: 'Above ₹5 Cr', increment: '₹25 Lakhs' },
-];
-
-const squadConstraints = [
-  { rule: 'Minimum Squad Size', value: '18 players' },
-  { rule: 'Maximum Squad Size', value: '25 players' },
-  { rule: 'Max Overseas Players', value: '8 players' },
-  { rule: 'IPL 2026 Purse', value: 'Variable (post retentions)' },
-  { rule: 'Mega Auction Purse', value: '₹120 Cr (flat)' },
-];
+import { Navbar } from '@/components/shared/Navbar';
+import { Footer } from '@/components/shared/Footer';
+import { Card } from '@/components/ui';
+import { BID_INCREMENTS, SET_NAMES, MAX_SQUAD_SIZE, MAX_OVERSEAS, TOTAL_PURSE } from '@/lib/constants';
+import { formatPrice } from '@/lib/utils';
 
 export default function HowToPlayPage() {
+  const steps = [
+    { title: 'Create or Join a Room', desc: 'The host creates a room and shares the code. Other players join using the room code or by browsing public rooms.' },
+    { title: 'Pick Your Team', desc: 'Each player selects one of the 10 IPL teams. Teams come with pre-retained players and remaining purse.' },
+    { title: 'Bidding Begins', desc: 'Players are presented in sets. The host controls the flow. When a player comes up, teams can bid if they have enough purse.' },
+    { title: 'Timer Countdown', desc: 'Each bid resets a countdown timer. When the timer runs out, the player is sold to the highest bidder.' },
+    { title: 'Build Your Squad', desc: 'Keep bidding across all sets. Manage your purse wisely to build a balanced squad of 25 players.' },
+    { title: 'Final Results', desc: 'Once all sets are completed, see the final standings and compare squads!' },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0a0e1a]">
-      {/* Header */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-cyan-500/5" />
-        <div className="absolute inset-0 opacity-5" style={{
-          backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-          backgroundSize: '40px 40px',
-        }} />
-        <div className="relative mx-auto max-w-4xl px-4 pt-16 pb-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-2">
-            <span className="bg-gradient-to-r from-[#ff6b00] to-[#ff9500] bg-clip-text text-transparent">
-              How to Play
-            </span>
-          </h1>
-          <p className="text-center text-gray-400 text-lg">
-            Your step-by-step guide to the IPL Auction Game
-          </p>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1 max-w-4xl mx-auto px-4 py-10 w-full">
+        <h1 className="text-3xl font-bold text-white mb-2">How to Play</h1>
+        <p className="text-gray-400 mb-10">Everything you need to know about the IPL Auction Game</p>
+
+        <div className="space-y-4 mb-12">
+          {steps.map((step, i) => (
+            <Card key={i} variant="default" className="p-5 flex gap-4">
+              <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                {i + 1}
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">{step.title}</h3>
+                <p className="text-sm text-gray-400 mt-1">{step.desc}</p>
+              </div>
+            </Card>
+          ))}
         </div>
-      </div>
 
-      <div className="mx-auto max-w-4xl px-4 pb-16">
-        {/* Steps timeline */}
-        <div className="relative">
-          {/* Vertical connecting line */}
-          <div className="absolute left-6 md:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-[#ff6b00] via-[#ff9500] to-[#00d4ff] opacity-30" />
+        <Card variant="elevated" className="p-6 mb-8">
+          <h2 className="text-lg font-semibold text-white mb-4">Squad Constraints</h2>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-xs text-gray-500 uppercase">Max Squad</p>
+              <p className="text-xl font-bold text-white">{MAX_SQUAD_SIZE}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 uppercase">Max Overseas</p>
+              <p className="text-xl font-bold text-amber-400">{MAX_OVERSEAS}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 uppercase">Total Purse</p>
+              <p className="text-xl font-bold text-emerald-400">₹{formatPrice(TOTAL_PURSE)}</p>
+            </div>
+          </div>
+        </Card>
 
-          <div className="space-y-6">
-            {steps.map(({ icon: Icon, number, title, desc }) => (
-              <div key={number} className="relative flex gap-5 md:gap-7 group">
-                {/* Number circle + icon */}
-                <div className="relative z-10 shrink-0">
-                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff9500] flex items-center justify-center shadow-lg shadow-orange-500/20 transition-transform duration-300 group-hover:scale-110">
-                    <Icon className="text-white" size={22} />
-                  </div>
-                  {/* Step number badge */}
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#0a0e1a] border-2 border-orange-500 flex items-center justify-center text-[10px] font-bold text-orange-500">
-                    {number}
-                  </span>
-                </div>
-
-                {/* Content card */}
-                <div className="flex-1 bg-gray-900/50 border border-white/10 rounded-2xl p-5 md:p-6 backdrop-blur-xl transition-all duration-300 group-hover:border-white/20 group-hover:bg-white/5 mb-0">
-                  <h3 className="text-lg font-bold text-white mb-1">{title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
-                </div>
+        <Card variant="elevated" className="p-6 mb-8">
+          <h2 className="text-lg font-semibold text-white mb-4">Bid Increments</h2>
+          <div className="space-y-2">
+            {Object.entries(BID_INCREMENTS).map(([range, increment]) => (
+              <div key={range} className="flex justify-between text-sm py-2 border-b border-gray-800 last:border-0">
+                <span className="text-gray-400">₹{range.replace('-', ' — ₹').replace('+', '+')} L</span>
+                <span className="text-white font-medium">+₹{increment} L</span>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
-        {/* Tables section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-          {/* Bid Increments */}
-          <div className="bg-gray-900/50 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 rounded-full bg-gradient-to-b from-[#ff6b00] to-[#ff9500]" />
-              Bid Increments
-            </h3>
-            <div className="space-y-0">
-              {bidIncrements.map(({ range, increment }, idx) => (
-                <div
-                  key={range}
-                  className={`flex items-center justify-between py-3 ${
-                    idx < bidIncrements.length - 1 ? 'border-b border-white/5' : ''
-                  }`}
-                >
-                  <span className="text-gray-400 text-sm">{range}</span>
-                  <span className="text-orange-500 font-semibold text-sm">{increment}</span>
-                </div>
-              ))}
-            </div>
+        <Card variant="elevated" className="p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Auction Sets</h2>
+          <div className="space-y-2">
+            {SET_NAMES.map((name, i) => (
+              <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-800 last:border-0">
+                <span className="text-xs text-indigo-400 font-medium w-6">{i + 1}</span>
+                <span className="text-sm text-gray-300">{name}</span>
+              </div>
+            ))}
           </div>
-
-          {/* Squad Constraints */}
-          <div className="bg-gray-900/50 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 rounded-full bg-gradient-to-b from-[#00d4ff] to-cyan-400" />
-              Squad Constraints
-            </h3>
-            <div className="space-y-0">
-              {squadConstraints.map(({ rule, value }, idx) => (
-                <div
-                  key={rule}
-                  className={`flex items-center justify-between py-3 ${
-                    idx < squadConstraints.length - 1 ? 'border-b border-white/5' : ''
-                  }`}
-                >
-                  <span className="text-gray-400 text-sm">{rule}</span>
-                  <span className="text-[#00d4ff] font-semibold text-sm">{value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+        </Card>
+      </main>
+      <Footer />
     </div>
   );
 }

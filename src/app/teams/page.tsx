@@ -1,82 +1,70 @@
 import Link from 'next/link';
-import teamsData from '@/data/teams.json';
+import { getTeams } from '@/lib/data';
+import { getRetentions } from '@/lib/data';
+import { Navbar } from '@/components/shared/Navbar';
+import { Footer } from '@/components/shared/Footer';
+import { Card } from '@/components/ui';
+import { formatPrice } from '@/lib/utils';
 
 export default function TeamsPage() {
+  const teams = getTeams();
+  const retentions = getRetentions();
+
   return (
-    <div className="min-h-screen bg-[#0a0e1a]">
-      {/* Header area with subtle gradient */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-cyan-500/5" />
-        <div className="absolute inset-0 opacity-5" style={{
-          backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-          backgroundSize: '40px 40px',
-        }} />
-        <div className="relative mx-auto max-w-7xl px-4 pt-16 pb-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-2">
-            <span className="bg-gradient-to-r from-[#ff6b00] to-[#ff9500] bg-clip-text text-transparent">
-              IPL Teams
-            </span>
-          </h1>
-          <p className="text-center text-gray-400 text-lg">
-            Choose your franchise and build the ultimate squad
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1 max-w-7xl mx-auto px-4 py-10 w-full">
+        <h1 className="text-3xl font-bold text-white mb-2">IPL Teams</h1>
+        <p className="text-gray-400 mb-8">All 10 teams with their retained squads and remaining purse</p>
 
-      {/* Teams grid */}
-      <div className="mx-auto max-w-7xl px-4 pb-16">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-          {teamsData.map((team) => (
-            <Link key={team.id} href={`/teams/${team.id}`} className="group">
-              <div
-                className="relative bg-gray-900/50 border border-white/10 rounded-2xl p-5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-white/20 overflow-hidden"
-                style={{
-                  boxShadow: 'none',
-                }}
-                onMouseEnter={undefined}
-              >
-                {/* Top color accent strip */}
-                <div
-                  className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl transition-all duration-300 group-hover:h-1.5"
-                  style={{ backgroundColor: team.primaryColor }}
-                />
-
-                {/* Hover glow effect via CSS */}
-                <div
-                  className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                  style={{
-                    boxShadow: `inset 0 0 30px ${team.primaryColor}15, 0 0 40px ${team.primaryColor}20`,
-                  }}
-                />
-
-                <div className="relative flex flex-col items-center text-center gap-3">
-                  {/* Team abbreviation circle */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {teams.map((team) => {
+            const retention = retentions[team.id];
+            return (
+              <Link key={team.id} href={`/teams/${team.id}`}>
+                <Card variant="elevated" className="p-5 hover:border-gray-700 transition-all group">
                   <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold transition-transform duration-300 group-hover:scale-110"
+                    className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm mb-4"
                     style={{
-                      backgroundColor: `${team.primaryColor}20`,
-                      color: team.primaryColor,
-                      border: `2px solid ${team.primaryColor}40`,
+                      backgroundColor: team.primaryColor,
+                      color: team.id === 'csk' ? '#1a1a1a' : '#fff',
                     }}
                   >
                     {team.shortName}
                   </div>
-
-                  {/* Team name */}
-                  <h2 className="font-bold text-white text-sm leading-tight">
+                  <h3 className="font-semibold text-white group-hover:text-indigo-400 transition-colors">
                     {team.name}
-                  </h2>
-
-                  {/* Home ground */}
-                  <p className="text-xs text-gray-400 leading-snug">
-                    {team.homeGround}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">{team.homeGround}</p>
+                  {retention && (
+                    <div className="mt-4 space-y-2">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-500">Purse Left</span>
+                        <span className="text-emerald-400 font-medium">
+                          ₹{formatPrice(retention.purseRemaining)}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-800 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full"
+                          style={{
+                            width: `${(retention.purseRemaining / 12000) * 100}%`,
+                            backgroundColor: team.primaryColor,
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        {retention.retained.length} retained
+                      </p>
+                    </div>
+                  )}
+                </Card>
+              </Link>
+            );
+          })}
         </div>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 }
